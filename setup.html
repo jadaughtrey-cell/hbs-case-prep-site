@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Guide — HBS Case Prep Simplified</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .setup-header {
+      padding: 5rem 0 3rem;
+      text-align: center;
+      background: radial-gradient(ellipse 70% 40% at 50% 0%, rgba(165,28,48,.1) 0%, transparent 70%);
+    }
+    .setup-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 3rem;
+      align-items: start;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+    @media (max-width: 768px) { .setup-layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+    /* ── Sidebar ───────────────────────────────── */
+    .sidebar { position: sticky; top: 80px; }
+    .sidebar-title { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: .8rem; }
+    .sidebar-nav { list-style: none; }
+    .sidebar-nav a {
+      display: block;
+      padding: .3rem 0;
+      color: var(--text-muted);
+      font-size: .85rem;
+      border-left: 2px solid transparent;
+      padding-left: .8rem;
+      transition: color .2s, border-color .2s;
+    }
+    .sidebar-nav a:hover { color: var(--text); }
+    .sidebar-nav a.active { color: var(--text); border-left-color: var(--crimson); }
+
+    /* ── Main content ──────────────────────────── */
+    .step-section { margin-bottom: 3.5rem; scroll-margin-top: 100px; }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: .8rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .step-header h2 { font-size: 1.3rem; }
+    .step-desc { color: var(--text-muted); margin-bottom: 1.2rem; font-size: .92rem; line-height: 1.7; }
+
+    .req-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .8rem; margin-bottom: 1.2rem; }
+    .req-item {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: .8rem 1rem;
+    }
+    .req-item .req-name { font-weight: 700; font-size: .88rem; margin-bottom: .2rem; }
+    .req-item .req-detail { font-size: .78rem; color: var(--text-muted); }
+    .req-item .req-link { font-size: .76rem; color: var(--accent-blue); margin-top: .3rem; }
+
+    .note-box {
+      border-radius: var(--radius-sm);
+      padding: .9rem 1.1rem;
+      margin: 1rem 0;
+      font-size: .86rem;
+      line-height: 1.6;
+      display: flex;
+      gap: .7rem;
+    }
+    .note-box.info    { background: rgba(79,142,247,.08); border: 1px solid rgba(79,142,247,.2); }
+    .note-box.warn    { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.2); }
+    .note-box.success { background: rgba(52,211,153,.08); border: 1px solid rgba(52,211,153,.2); }
+    .note-box .note-icon { font-size: 1rem; flex-shrink: 0; line-height: 1.6; }
+    .note-box p { margin: 0; color: var(--text-muted); }
+    .note-box strong { color: var(--text); }
+
+    .sub-step {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+      align-items: flex-start;
+    }
+    .sub-step-num {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: .75rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: .15rem;
+    }
+    .sub-step-body { flex: 1; }
+    .sub-step-body h4 { font-size: .92rem; margin-bottom: .3rem; }
+    .sub-step-body p { font-size: .85rem; color: var(--text-muted); margin-bottom: .5rem; }
+
+    .file-tree {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.2rem;
+      font-family: var(--mono);
+      font-size: .8rem;
+      color: #c9d1d9;
+      line-height: 1.9;
+    }
+    .file-tree .dir { color: #58a6ff; }
+    .file-tree .key { color: #7ee787; }
+    .file-tree .comment { color: #6a737d; }
+
+    .config-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .84rem;
+      margin-bottom: 1rem;
+    }
+    .config-table th {
+      text-align: left;
+      padding: .4rem .8rem;
+      background: var(--bg-3);
+      color: var(--text);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      border-bottom: 1px solid var(--border);
+    }
+    .config-table td {
+      padding: .5rem .8rem;
+      border-bottom: 1px solid rgba(42,49,71,.5);
+      color: var(--text-muted);
+      vertical-align: top;
+    }
+    .config-table td:first-child { font-family: var(--mono); font-size: .78rem; color: #a5d6ff; white-space: nowrap; }
+    .config-table td:last-child { font-size: .8rem; }
+
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      font-size: .88rem;
+      color: var(--text-muted);
+    }
+    .checklist li::before {
+      content: '□';
+      color: var(--border);
+      font-size: 1rem;
+      flex-shrink: 0;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">HBS Case Prep<span class="dot">.</span></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="demo.html">Demo</a>
+      <a href="setup.html" class="active">Setup Guide</a>
+      <a href="#step-run" class="nav-cta">Quick Start →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Header ───────────────────────────────────────────────────── -->
+<section class="setup-header">
+  <div class="container">
+    <p class="section-label mb-2">Setup Guide</p>
+    <h1 style="margin-bottom:.8rem;">Mirror It On Your Machine</h1>
+    <p class="text-muted" style="max-width:580px; margin: 0 auto 1.2rem;">
+      Full setup takes <strong style="color:var(--text)">15–20 minutes</strong>. The three hardest parts are Canvas token (3 min), HBSP login (5 min), and course config (5 min). Everything else is copy-paste. You run it from your own machine against your own accounts — nothing is stored externally.
+    </p>
+    <div style="display:flex; gap:.8rem; justify-content:center; flex-wrap:wrap; margin-bottom:1.5rem; font-size:.82rem; color:var(--text-muted);">
+      <span>⏱ Steps 1–3: ~8 min</span>
+      <span style="color:var(--text-dim)">·</span>
+      <span>⏱ Steps 4–7: ~7 min</span>
+      <span style="color:var(--text-dim)">·</span>
+      <span>⏱ Steps 8–9: ~3 min</span>
+    </div>
+    <div class="flex justify-center gap-2 flex-wrap">
+      <span class="badge badge-blue">Python 3.11+</span>
+      <span class="badge badge-yellow">Windows (Outlook COM)</span>
+      <span class="badge badge-green">Canvas Token Required</span>
+      <span class="badge badge-crimson">Anthropic API Key Required</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── Main layout ───────────────────────────────────────────────── -->
+<div class="setup-layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-title">On this page</div>
+    <ul class="sidebar-nav">
+      <li><a href="#step-prereqs">1. Prerequisites</a></li>
+      <li><a href="#step-install">2. Installation</a></li>
+      <li><a href="#step-canvas">3. Canvas Token</a></li>
+      <li><a href="#step-hbsp">4. HBSP Auth</a></li>
+      <li><a href="#step-anthropic">5. Anthropic Key</a></li>
+      <li><a href="#step-config">6. Course Config</a></li>
+      <li><a href="#step-graph">7. Graph API (optional)</a></li>
+      <li><a href="#step-run">8. First Run</a></li>
+      <li><a href="#step-single">9. Single Cheatsheet</a></li>
+      <li><a href="#step-trouble">Troubleshooting</a></li>
+    </ul>
+  </aside>
+
+  <!-- ── Steps ─────────────────────────────────────────────────── -->
+  <main>
+
+    <!-- Step 1 -->
+    <div class="step-section" id="step-prereqs">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <h2>Prerequisites</h2>
+      </div>
+      <p class="step-desc">Make sure you have all of these before starting.</p>
+      <div class="req-grid">
+        <div class="req-item">
+          <div class="req-name">Python 3.11+</div>
+          <div class="req-detail">Windows or macOS. 3.12 recommended.</div>
+          <div class="req-link"><a href="https://python.org/downloads" target="_blank">python.org/downloads ↗</a></div>
+        </div>
+        <div class="req-item">
+          <div class="req-name">Git</div>
+          <div class="req-detail">To clone the repo.</div>
+          <div class="req-link"><a href="https://git-scm.com" target="_blank">git-scm.com ↗</a></div>
+        </div>
+        <div class="req-item">
+          <div class="req-name">Canvas Account</div>
+          <div class="req-detail">HBS or any Canvas LMS instance (hbs.instructure.com).</div>
+        </div>
+        <div class="req-item">
+          <div class="req-name">Anthropic API Key</div>
+          <div class="req-detail">For Claude case analysis. ~$0.13/case on Sonnet.</div>
+          <div class="req-link"><a href="https://console.anthropic.com" target="_blank">console.anthropic.com ↗</a></div>
+        </div>
+        <div class="req-item">
+          <div class="req-name">Microsoft Outlook</div>
+          <div class="req-detail">Desktop app (Windows). Required for Outlook calendar sync only.</div>
+        </div>
+        <div class="req-item">
+          <div class="req-name">HBSP Account</div>
+          <div class="req-detail">Harvard Business Publishing login — same one used for the bookstore.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-section" id="step-install">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <h2>Installation</h2>
+      </div>
+      <p class="step-desc">Clone the repo and install dependencies.</p>
+
+      <div class="sub-step">
+        <div class="sub-step-num">a</div>
+        <div class="sub-step-body">
+          <h4>Clone &amp; enter the project</h4>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="terminal-dot" style="background:#ff5f57"></div>
+              <div class="terminal-dot" style="background:#febc2e"></div>
+              <div class="terminal-dot" style="background:#28c840"></div>
+            </div>
+            <div class="terminal-body">
+              <div><span class="t-cmd">$</span> git clone https://github.com/your-repo/hbs-case-prep.git</div>
+              <div><span class="t-cmd">$</span> cd hbs-case-prep</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-step">
+        <div class="sub-step-num">b</div>
+        <div class="sub-step-body">
+          <h4>Install Python dependencies</h4>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="terminal-dot" style="background:#ff5f57"></div>
+              <div class="terminal-dot" style="background:#febc2e"></div>
+              <div class="terminal-dot" style="background:#28c840"></div>
+            </div>
+            <div class="terminal-body">
+              <div><span class="t-cmd">$</span> pip install -r requirements.txt</div>
+              <div class="t-out">Installing: requests, beautifulsoup4, pdfplumber, python-docx,</div>
+              <div class="t-out">           playwright, pywin32, msal ...</div>
+              <div class="t-good">Successfully installed 14 packages.</div>
+            </div>
+          </div>
+          <div class="note-box info mt-2">
+            <span class="note-icon">ℹ️</span>
+            <p><strong>Windows only:</strong> <code>pywin32</code> (for Outlook COM) may require running pip as Administrator. If Outlook sync is not needed, skip it.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-step">
+        <div class="sub-step-num">c</div>
+        <div class="sub-step-body">
+          <h4>Install Playwright browser (for HBSP downloads)</h4>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="terminal-dot" style="background:#ff5f57"></div>
+              <div class="terminal-dot" style="background:#febc2e"></div>
+              <div class="terminal-dot" style="background:#28c840"></div>
+            </div>
+            <div class="terminal-body">
+              <div><span class="t-cmd">$</span> python -m playwright install chromium</div>
+              <div class="t-good">Chromium downloaded and installed.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box success">
+        <span class="note-icon">✅</span>
+        <p><strong>Project structure after install:</strong></p>
+      </div>
+      <div class="file-tree">
+        <span class="dir">hbs-case-prep/</span><br>
+        ├── <span class="key">weekly_prep.py</span>          <span class="comment"># master pipeline runner</span><br>
+        ├── <span class="key">canvas_scraper.py</span>       <span class="comment"># Canvas API integration</span><br>
+        ├── <span class="key">hbsp_downloader.py</span>      <span class="comment"># file downloads (HBSP + Canvas + direct)</span><br>
+        ├── <span class="key">ai_case_analyzer.py</span>     <span class="comment"># Anthropic API + cheatsheet JSON schema</span><br>
+        ├── <span class="key">gen_cheatsheets_v2.py</span>   <span class="comment"># Word .docx builder</span><br>
+        ├── <span class="key">run_cheatsheet.py</span>        <span class="comment"># single-case runner</span><br>
+        ├── <span class="key">outlook_sync.py</span>          <span class="comment"># Graph API + Outlook COM sync</span><br>
+        ├── <span class="key">class_prep_workflow_v2.py</span><span class="comment"># course config (folders, colors, IDs)</span><br>
+        ├── <span class="key">graph_auth.py</span>            <span class="comment"># one-time MS Graph device auth</span><br>
+        ├── schedule_viewer.py        <span class="comment"># HBS schedule viewer integration</span><br>
+        ├── requirements.txt<br>
+        └── <span class="dir">website/</span>                <span class="comment"># this site</span>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-section" id="step-canvas">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <h2>Canvas API Token</h2>
+      </div>
+      <p class="step-desc">A personal access token lets the scraper read your assignments via the Canvas REST API — no browser window, no clicking through pages. This takes about 3 minutes.</p>
+
+      <div class="sub-step">
+        <div class="sub-step-num">1</div>
+        <div class="sub-step-body">
+          <h4>Go directly to your Canvas profile settings</h4>
+          <p>Open this URL in your browser — it works for any Canvas school:</p>
+          <div class="terminal" style="margin-top:.5rem;">
+            <div class="terminal-body" style="padding:.7rem 1rem;">
+              <div class="t-info">https://hbs.instructure.com/profile/settings</div>
+              <div class="t-out" style="font-size:.72rem;">  ↑ replace "hbs" with your school's Canvas subdomain if different</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-step">
+        <div class="sub-step-num">2</div>
+        <div class="sub-step-body">
+          <h4>Scroll all the way to the bottom → find "Approved Integrations"</h4>
+          <p>It's at the very bottom of the Settings page. Click <strong style="color:var(--text)">+ New Access Token</strong>.</p>
+          <div class="note-box info" style="margin-top:.6rem;">
+            <span class="note-icon">ℹ️</span>
+            <p>In the dialog: Purpose = <code>Case Prep Script</code> &nbsp;·&nbsp; Expiry = leave blank (permanent) &nbsp;·&nbsp; click <strong>Generate Token</strong>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-step">
+        <div class="sub-step-num">3</div>
+        <div class="sub-step-body">
+          <h4>Copy the token immediately — Canvas only shows it once</h4>
+          <p>It starts with <code>~</code> or a long alphanumeric string. Store it somewhere secure before closing the dialog.</p>
+        </div>
+      </div>
+
+      <div class="sub-step">
+        <div class="sub-step-num">4</div>
+        <div class="sub-step-body">
+          <h4>Set it as an environment variable (don't hardcode in source)</h4>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="terminal-dot" style="background:#ff5f57"></div>
+              <div class="terminal-dot" style="background:#febc2e"></div>
+              <div class="terminal-dot" style="background:#28c840"></div>
+            </div>
+            <div class="terminal-body">
+              <div class="t-out"># Windows PowerShell — persists across reboots:</div>
+              <div><span class="t-cmd">></span> [System.Environment]::SetEnvironmentVariable("HBS_CANVAS_TOKEN","your_token","User")</div>
+              <div class="t-out" style="margin-top:.4rem;"># Then restart your terminal. Verify it worked:</div>
+              <div><span class="t-cmd">></span> $env:HBS_CANVAS_TOKEN</div>
+              <div class="t-good">  your_token_here  ← should print your token</div>
+              <div class="t-out" style="margin-top:.5rem;"># Mac/Linux — add to ~/.zshrc or ~/.bashrc:</div>
+              <div><span class="t-cmd">$</span> echo 'export HBS_CANVAS_TOKEN="your_token"' >> ~/.zshrc &amp;&amp; source ~/.zshrc</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box warn">
+        <span class="note-icon">⚠️</span>
+        <p>Canvas tokens grant full account access (read/write). <strong>Never commit this to git.</strong> If you accidentally expose it, delete it from Canvas Settings → Approved Integrations immediately and generate a new one.</p>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-section" id="step-hbsp">
+      <div class="step-header">
+        <div class="step-num">4</div>
+        <h2>HBSP Authentication</h2>
+      </div>
+      <p class="step-desc">HBSP (Harvard Business School Publishing) case PDFs are behind a paywall linked to your Canvas account — you can't just download them with a URL. This step opens a real browser, you log in once, and the script saves your session so all future downloads happen silently in the background.</p>
+
+      <div class="sub-step">
+        <div class="sub-step-num">1</div>
+        <div class="sub-step-body">
+          <h4>Run the setup command — it opens a Chromium window</h4>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="terminal-dot" style="background:#ff5f57"></div>
+              <div class="terminal-dot" style="background:#febc2e"></div>
+              <div class="terminal-dot" style="background:#28c840"></div>
+            </div>
+            <div class="terminal-body">
+              <div><span class="t-cmd">$</span> python hbsp_downloader.py --setup</div>
+              <div class="t-out">  Opening Chromium browser window — do not close it yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-step">
+        <div class="sub-step-num">2</div>
+        <div class="sub-step-body">
+          <h4>In the browser window that opens: log into Canvas normally</h4>
+          <p>Go to <code>hbs.instructure.com</code> and sign in with your HBS credentials. This is the same login you use every day — just do it in this specific Chromium window, not your regular browser.</p>
+        </div>
+      </div>
+
+      <div class="sub-step">
+        <div class="sub-step-num">3</div>
+        <div class="sub-step-body">
+          <h4>Navigate to any Canvas assignment that has a case PDF link</h4>
+          <p>Open one of your courses → go to any assignment that has a case reading. Look for a link that says something like "Harvard Business School Case" or opens a PDF on <code>hbsp.harvard.edu</code>. Click it and wait for the PDF to load fully. This is what establishes the HBSP session.</p>
+          <div class="note-box warn" style="margin-top:.6rem;">
+            <span class="note-icon">⚠️</span>
+            <p><strong>The PDF must actually load in the browser.</strong> If you see a "purchase required" page, make sure your Canvas course has an active coursepack. If the PDF loads in a preview pane, that counts — you don't need to open a separate tab.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-step">
+        <div class="sub-step-num">4</div>
+        <div class="sub-step-body">
+          <h4>Close the browser window — the script saves your session automatically</h4>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="terminal-dot" style="background:#ff5f57"></div>
+              <div class="terminal-dot" style="background:#febc2e"></div>
+              <div class="terminal-dot" style="background:#28c840"></div>
+            </div>
+            <div class="terminal-body">
+              <div class="t-out">  Saving session to hbsp_auth.json ...</div>
+              <div class="t-good">  ✓ 42 HBSP cookies · 18 Canvas cookies confirmed.</div>
+              <div class="t-good">  ✓ Ready to download. Sessions last ~30 days.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box info mt-2">
+        <span class="note-icon">ℹ️</span>
+        <p><code>hbsp_auth.json</code> stores two things: HBSP session cookies (for case PDFs) and Canvas session cookies (for xlsx/docx files uploaded directly to Canvas assignments — not linked via HBSP). Both expire after ~30 days. When downloads start returning HTML instead of PDF, that's your signal to re-run <code>--setup</code>.</p>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-section" id="step-anthropic">
+      <div class="step-header">
+        <div class="step-num">5</div>
+        <h2>Anthropic API Key</h2>
+      </div>
+      <p class="step-desc">Used to call Claude Sonnet for case analysis. Each case costs roughly $0.05–0.15 depending on length.</p>
+
+      <div class="sub-step">
+        <div class="sub-step-num">1</div>
+        <div class="sub-step-body">
+          <h4>Get your key</h4>
+          <p>Go to <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys → Create Key. Copy it — it's only shown once.</p>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-step-num">2</div>
+        <div class="sub-step-body">
+          <h4>Set the environment variable</h4>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="terminal-dot" style="background:#ff5f57"></div>
+              <div class="terminal-dot" style="background:#febc2e"></div>
+              <div class="terminal-dot" style="background:#28c840"></div>
+            </div>
+            <div class="terminal-body">
+              <div class="t-out"># Windows PowerShell:</div>
+              <div><span class="t-cmd">$</span> [System.Environment]::SetEnvironmentVariable("ANTHROPIC_API_KEY","sk-ant-...","User")</div>
+              <div class="t-out"></div>
+              <div class="t-out"># Mac/Linux:</div>
+              <div><span class="t-cmd">$</span> export ANTHROPIC_API_KEY="sk-ant-..."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step-section" id="step-config">
+      <div class="step-header">
+        <div class="step-num">6</div>
+        <h2>Course Configuration</h2>
+      </div>
+      <p class="step-desc">Edit <code>class_prep_workflow_v2.py</code> to point each course at your Canvas course ID and local folder.</p>
+
+      <pre><code><span style="color:#8b949e"># class_prep_workflow_v2.py — edit COURSES dict</span>
+
+BASE = os.path.join(os.path.expanduser("~"),
+    "OneDrive", "Documents", "YourSchool", "Courses")
+
+COURSES = {
+    "FIN2": {
+        "canvas_course_id": 16192,      <span style="color:#8b949e"># from your Canvas URL</span>
+        "canvas_url": "https://hbs.instructure.com/courses/16192/assignments",
+        "folder": os.path.join(BASE, "Finance"),
+        "accent": "1B4F72",             <span style="color:#8b949e"># hex color for cheatsheet headers</span>
+        "light":  "EBF4FA",
+        "label":  "FIN2",
+        "class_start": "10:40",         <span style="color:#8b949e"># fallback if Graph API unavailable</span>
+        "class_end":   "12:00",
+    },
+    "BGIE": { ... },
+    "DSAIL": { ... },
+}</code></pre>
+
+      <div class="note-box info mt-2">
+        <span class="note-icon">ℹ️</span>
+        <p><strong>Finding your Canvas course ID:</strong> Go to your course in Canvas. The URL will be <code>canvas.youruniversity.edu/courses/<strong>12345</strong>/assignments</code> — that number is your <code>canvas_course_id</code>.</p>
+      </div>
+
+      <h4 style="margin: 1.5rem 0 .7rem; font-size:.92rem;">Config reference</h4>
+      <table class="config-table">
+        <thead><tr><th>Key</th><th>Description</th><th>Required?</th></tr></thead>
+        <tbody>
+          <tr><td>canvas_course_id</td><td>Integer from the Canvas URL for this course</td><td><span class="badge badge-crimson">Yes</span></td></tr>
+          <tr><td>canvas_url</td><td>Full URL to the assignments list page (used by browser-auth flow)</td><td><span class="badge badge-crimson">Yes</span></td></tr>
+          <tr><td>folder</td><td>Local path where downloaded files and cheatsheets are saved</td><td><span class="badge badge-crimson">Yes</span></td></tr>
+          <tr><td>accent / light</td><td>Hex colors used for cheatsheet section headers</td><td><span class="badge badge-blue">Optional</span></td></tr>
+          <tr><td>label</td><td>Short display name (used in Outlook event names)</td><td><span class="badge badge-blue">Optional</span></td></tr>
+          <tr><td>class_start / class_end</td><td>Fallback times (HH:MM 24h) if Graph API unavailable</td><td><span class="badge badge-blue">Optional</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step-section" id="step-graph">
+      <div class="step-header">
+        <div class="step-num">7</div>
+        <h2>Microsoft Graph API <span class="badge badge-blue" style="font-size:.65rem; vertical-align:middle;">Optional</span></h2>
+      </div>
+      <p class="step-desc">This step is what allows the pipeline to rename and attach files to the HBS-pushed calendar events like "FIN2 C". Without it, the fallback MAPI COM sync can only modify calendar items you own — not the ones HBS pushes. <strong style="color:var(--accent-yellow)">Skip this step if you're just testing cheatsheet generation</strong> — you can add it later. If you're on a corporate network with strict OAuth policies, you may need to request an app registration from your IT team.</p>
+
+      <div class="sub-step">
+        <div class="sub-step-num">1</div>
+        <div class="sub-step-body">
+          <h4>Install MSAL</h4>
+          <div class="terminal">
+            <div class="terminal-bar"><div class="terminal-dot" style="background:#ff5f57"></div><div class="terminal-dot" style="background:#febc2e"></div><div class="terminal-dot" style="background:#28c840"></div></div>
+            <div class="terminal-body">
+              <div><span class="t-cmd">$</span> pip install msal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-step-num">2</div>
+        <div class="sub-step-body">
+          <h4>Authenticate (device code flow — one-time)</h4>
+          <div class="terminal">
+            <div class="terminal-bar"><div class="terminal-dot" style="background:#ff5f57"></div><div class="terminal-dot" style="background:#febc2e"></div><div class="terminal-dot" style="background:#28c840"></div></div>
+            <div class="terminal-body">
+              <div><span class="t-cmd">$</span> python graph_auth.py</div>
+              <div class="t-out">  Visit: https://microsoft.com/devicelogin</div>
+              <div class="t-out">  Enter code: ABCD-1234</div>
+              <div class="t-out">  Sign in with your Microsoft account...</div>
+              <div class="t-good">  ✓ Token cached. Graph API ready.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 8 -->
+    <div class="step-section" id="step-run">
+      <div class="step-header">
+        <div class="step-num">8</div>
+        <h2>First Run</h2>
+      </div>
+      <p class="step-desc">Run the full pipeline for a date range. Use flags to skip stages or target specific courses.</p>
+
+      <div class="terminal" style="margin-bottom:1rem;">
+        <div class="terminal-bar">
+          <div class="terminal-dot" style="background:#ff5f57"></div>
+          <div class="terminal-dot" style="background:#febc2e"></div>
+          <div class="terminal-dot" style="background:#28c840"></div>
+          <span style="color:var(--text-dim); font-size:.75rem; margin-left:.5rem; font-family:var(--mono);">weekly_prep.py</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-out"># Run everything for the coming week:</div>
+          <div><span class="t-cmd">$</span> python weekly_prep.py 2026-04-14 2026-04-17</div>
+          <div class="t-out"></div>
+          <div class="t-out"># Skip file downloads (cheatsheets only):</div>
+          <div><span class="t-cmd">$</span> python weekly_prep.py 2026-04-14 2026-04-17 --skip-download</div>
+          <div class="t-out"></div>
+          <div class="t-out"># Target specific courses:</div>
+          <div><span class="t-cmd">$</span> python weekly_prep.py 2026-04-14 2026-04-17 --courses BGIE FIN2</div>
+          <div class="t-out"></div>
+          <div class="t-out"># Skip Outlook sync (generate cheatsheets only):</div>
+          <div><span class="t-cmd">$</span> python weekly_prep.py 2026-04-14 2026-04-17 --skip-outlook</div>
+          <div class="t-out"></div>
+          <div class="t-out"># Use more powerful model for complex cases:</div>
+          <div><span class="t-cmd">$</span> python weekly_prep.py 2026-04-14 2026-04-17 --model claude-opus-4-6</div>
+        </div>
+      </div>
+
+      <div class="note-box success">
+        <span class="note-icon">✅</span>
+        <p><strong>What a successful run looks like:</strong></p>
+      </div>
+      <div class="terminal" style="margin-bottom:1.5rem;">
+        <div class="terminal-bar">
+          <div class="terminal-dot" style="background:#ff5f57"></div>
+          <div class="terminal-dot" style="background:#febc2e"></div>
+          <div class="terminal-dot" style="background:#28c840"></div>
+        </div>
+        <div class="terminal-body" style="font-size:.77rem;">
+          <div class="t-info">[CANVAS] Scraping FIN2 (course 16192)...</div>
+          <div class="t-good">  ✓ 3 assignments found for Apr 14–17</div>
+          <div class="t-info">[DOWNLOAD] Downloading files for 20 FIN2 Turnaround at Mattel...</div>
+          <div class="t-good">  ✓ Turnaround at Mattel (HBS 9-216-054).pdf  (1.8 MB)</div>
+          <div class="t-good">  ✓ Mattel Financial Model Exhibit A.xlsx  (420 KB)</div>
+          <div class="t-info">[AI] Analyzing FIN2 Class 20 (22 pages → target: ~1,800 words)...</div>
+          <div class="t-good">  ✓ Analysis complete in 18s · $0.11</div>
+          <div class="t-info">[CHEATSHEET] Building 20 FIN2 Turnaround at Mattel Case Analysis Cheatsheet.docx...</div>
+          <div class="t-good">  ✓ Saved to OneDrive/Documents/Courses/Finance/</div>
+          <div class="t-info">[OUTLOOK] Finding event "FIN2 C" on Apr 15...</div>
+          <div class="t-good">  ✓ Renamed → "20 FIN2 Turnaround at Mattel Day 1"</div>
+          <div class="t-good">  ✓ 3 files attached · 1 video link embedded</div>
+          <div class="t-out">  ───────────────────────────────────────</div>
+          <div class="t-good">  ✓ Week complete: 5 classes · 12 files · 5 cheatsheets in 3m 12s</div>
+        </div>
+      </div>
+
+      <h4 style="margin: 1.5rem 0 .7rem; font-size:.92rem;">All CLI flags</h4>
+      <table class="config-table">
+        <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>--skip-scrape</td><td>Skip Canvas API scrape; use previously cached data</td></tr>
+          <tr><td>--skip-download</td><td>Skip file downloads; only generate cheatsheets</td></tr>
+          <tr><td>--skip-cheatsheets</td><td>Skip AI analysis; only download files + sync calendar</td></tr>
+          <tr><td>--skip-outlook</td><td>Skip calendar sync entirely</td></tr>
+          <tr><td>--courses X Y</td><td>Only process these course keys (e.g. <code>BGIE FIN2</code>)</td></tr>
+          <tr><td>--model MODEL</td><td>Anthropic model (default: <code>claude-sonnet-4-6</code>)</td></tr>
+          <tr><td>--depth simple|intermediate|detailed</td><td>Cheatsheet depth (default: intermediate)</td></tr>
+          <tr><td>--dry-run</td><td>Show what would happen without making changes</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Step 9 -->
+    <div class="step-section" id="step-single">
+      <div class="step-header">
+        <div class="step-num">9</div>
+        <h2>Single Cheatsheet</h2>
+      </div>
+      <p class="step-desc">Regenerate a single cheatsheet without running the full pipeline — useful when you want to reprocess one case with updated questions or a different depth.</p>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="terminal-dot" style="background:#ff5f57"></div>
+          <div class="terminal-dot" style="background:#febc2e"></div>
+          <div class="terminal-dot" style="background:#28c840"></div>
+        </div>
+        <div class="terminal-body">
+          <div><span class="t-cmd">$</span> python run_cheatsheet.py "path/to/case.pdf" \</div>
+          <div>       --course FIN2 --class-num 20 --date 2026-04-15 \</div>
+          <div>       --topic "Turnaround at Mattel Day 1" \</div>
+          <div>       --time "10:40 AM - 12:00 PM" \</div>
+          <div>       --q "What are the essential elements of the turnaround plan?" \</div>
+          <div>       --q "Does the company have a solvency issue?"</div>
+          <div class="t-out"></div>
+          <div class="t-good">  ✓ 20 FIN2 Turnaround at Mattel Day 1 Case Analysis Cheatsheet.docx</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="step-section" id="step-trouble">
+      <div class="step-header">
+        <div class="step-num" style="background:var(--bg-3); color:var(--text-muted); border:1px solid var(--border);">?</div>
+        <h2>Troubleshooting</h2>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        <div class="card">
+          <h4 style="font-size:.92rem; margin-bottom:.4rem; color:var(--accent-yellow);">⚠️ "anthropic SDK is required" error</h4>
+          <p style="font-size:.84rem;">The SDK cannot be installed in some sandboxed environments. The pipeline uses a direct <code>requests.post()</code> call to the Anthropic API as a fallback — no SDK needed. If you see this error, ensure <code>ANTHROPIC_API_KEY</code> is set in your environment.</p>
+        </div>
+        <div class="card">
+          <h4 style="font-size:.92rem; margin-bottom:.4rem; color:var(--accent-yellow);">⚠️ Blank or empty .docx files</h4>
+          <p style="font-size:.84rem;">Caused by the API response being cut off before the JSON was complete (<code>max_tokens</code> too low). Fix: re-run with <code>--depth detailed</code>, which uses a higher token budget. The default intermediate depth has 5,000 token budget — sufficient for 90% of cases.</p>
+        </div>
+        <div class="card">
+          <h4 style="font-size:.92rem; margin-bottom:.4rem; color:var(--accent-yellow);">⚠️ HBSP downloads failing with HTML response</h4>
+          <p style="font-size:.84rem;">Your Canvas session has expired. Re-run <code>python hbsp_downloader.py --setup</code> to refresh the auth cookies. Sessions last approximately 30 days.</p>
+        </div>
+        <div class="card">
+          <h4 style="font-size:.92rem; margin-bottom:.4rem; color:var(--accent-yellow);">⚠️ Outlook event not found ("not_found")</h4>
+          <p style="font-size:.84rem;">The Graph API can't find an event for that course/date. Verify the course abbreviation in <code>COURSES</code> matches the first word of your Outlook event (e.g. "FIN2" matches "FIN2 C"). Run <code>python outlook_sync.py --list 2026-04-15</code> to see all events Outlook has on that date.</p>
+        </div>
+        <div class="card">
+          <h4 style="font-size:.92rem; margin-bottom:.4rem; color:var(--accent-yellow);">⚠️ Canvas scrape returns 0 assignments</h4>
+          <p style="font-size:.84rem;">Check that <code>HBS_CANVAS_TOKEN</code> is set and valid (<code>echo $env:HBS_CANVAS_TOKEN</code>). Also verify your <code>canvas_course_id</code> matches the 5-digit number in the Canvas URL. The API uses a <code>bucket=future</code> filter — if running for past weeks, remove it in <code>canvas_scraper.py</code> line ~480.</p>
+        </div>
+        <div class="card">
+          <h4 style="font-size:.92rem; margin-bottom:.4rem; color:var(--accent-yellow);">⚠️ SSL certificate error ("CERTIFICATE_VERIFY_FAILED")</h4>
+          <p style="font-size:.84rem;">Common on school or corporate networks that use a proxy with a self-signed certificate. The pipeline's API call uses <code>verify=False</code> as a fallback, which suppresses this. If you still see it, make sure you're running the latest version of <code>ai_case_analyzer.py</code> and that <code>requests</code> is up to date (<code>pip install -U requests</code>).</p>
+        </div>
+        <div class="card">
+          <h4 style="font-size:.92rem; margin-bottom:.4rem; color:var(--accent-yellow);">⚠️ Files downloading as 0 bytes or wrong type</h4>
+          <p style="font-size:.84rem;">The downloader uses magic bytes (actual file content) rather than the server's <code>Content-Type</code> header to detect file types. If a file comes back as 0 bytes, the Canvas session probably expired — re-run <code>hbsp_downloader.py --setup</code>. If the file is named <code>.unknown</code>, the magic bytes didn't match any known type — check the raw bytes with <code>xxd filename.unknown | head</code> to diagnose.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final checklist -->
+    <div class="card" style="border-color: rgba(52,211,153,.3);">
+      <h3 style="margin-bottom:1.2rem; color:var(--accent-green);">✅ Pre-Flight Checklist</h3>
+      <ul class="checklist">
+        <li>Python 3.11+ installed and accessible from terminal</li>
+        <li>All dependencies installed from <code>requirements.txt</code></li>
+        <li>Playwright Chromium installed (<code>python -m playwright install chromium</code>)</li>
+        <li><code>HBS_CANVAS_TOKEN</code> environment variable set</li>
+        <li>HBSP auth session saved (<code>hbsp_auth.json</code> exists)</li>
+        <li><code>ANTHROPIC_API_KEY</code> environment variable set</li>
+        <li><code>COURSES</code> dict in <code>class_prep_workflow_v2.py</code> updated with your course IDs and folder paths</li>
+        <li>Target folders exist on disk (pipeline will not create them)</li>
+        <li>(Optional) Graph token cached via <code>python graph_auth.py</code></li>
+      </ul>
+      <div class="mt-4">
+        <a href="#step-run" class="btn btn-primary btn-sm">Ready — go to First Run →</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div class="container">
+    <p>HBS Case Prep Simplified &nbsp;·&nbsp; RC MBA 2026 DSAIL Final Project &nbsp;·&nbsp; Jim Daughtrey</p>
+  </div>
+</footer>
+
+<script>
+  // Highlight active sidebar section on scroll
+  const sections = document.querySelectorAll('.step-section');
+  const links = document.querySelectorAll('.sidebar-nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 120) current = s.id;
+    });
+    links.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+</body>
+</html>

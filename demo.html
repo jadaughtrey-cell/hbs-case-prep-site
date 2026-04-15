@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo — HBS Case Prep Simplified</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .demo-header {
+      padding: 5.5rem 0 3.5rem;
+      text-align: center;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(165,28,48,.14) 0%, transparent 65%);
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-nav {
+      display: flex;
+      gap: .4rem;
+      margin-bottom: 2.5rem;
+      overflow-x: auto;
+      padding: .35rem;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      width: fit-content;
+    }
+    .tab-btn {
+      padding: .5rem 1.1rem;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 7px;
+      white-space: nowrap;
+      transition: all .18s;
+      font-family: var(--font);
+      letter-spacing: .01em;
+    }
+    .tab-btn:hover  { color: var(--text); background: rgba(255,255,255,.05); }
+    .tab-btn.active { color: var(--text); background: var(--bg-2); border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Cheatsheet replica ─────────────────────── */
+    .doc-window {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .doc-titlebar {
+      background: #f0f0f0;
+      border-bottom: 1px solid #ddd;
+      padding: .6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .78rem;
+      color: #555;
+    }
+    .doc-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .doc-body {
+      padding: 2.5rem 2.8rem;
+      font-family: 'Calibri', 'Segoe UI', sans-serif;
+      font-size: .88rem;
+      color: #1a1a2e;
+      line-height: 1.55;
+    }
+    .doc-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: .15rem;
+    }
+    .doc-subtitle {
+      font-size: .82rem;
+      color: #666;
+      margin-bottom: 1.2rem;
+    }
+    .doc-meta {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.4rem;
+      font-size: .8rem;
+    }
+    .doc-meta td {
+      padding: .35rem .7rem;
+      border: 1px solid #d0d0d0;
+    }
+    .doc-meta td:first-child {
+      font-weight: 700;
+      background: #f2f2f2;
+      width: 22%;
+      color: #333;
+    }
+    .doc-section {
+      background: #A51C30;
+      color: #fff;
+      padding: .3rem .8rem;
+      font-weight: 700;
+      font-size: .76rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      margin: 1.1rem 0 .5rem;
+      border-radius: 3px;
+    }
+    .doc-bullets { padding-left: 1.4rem; margin-bottom: .6rem; }
+    .doc-bullets li { margin-bottom: .22rem; color: #2a2a2a; font-size: .83rem; }
+    .doc-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .8rem;
+      margin-bottom: .6rem;
+    }
+    .doc-mini-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      padding: .5rem .7rem;
+    }
+    .doc-mini-card .label { font-weight: 700; font-size: .73rem; color: #555; margin-bottom: .15rem; }
+    .doc-mini-card p { font-size: .78rem; color: #333; margin: 0; }
+    .doc-qa-q {
+      font-weight: 700;
+      color: #A51C30;
+      font-size: .82rem;
+      margin-top: .8rem;
+    }
+    .doc-qa-a {
+      color: #2a2a2a;
+      font-size: .82rem;
+      padding-left: .7rem;
+      border-left: 3px solid #A51C30;
+      margin: .3rem 0 .5rem;
+    }
+    .doc-qa-a ul { margin: .2rem 0 0 1rem; }
+    .doc-qa-a li { margin-bottom: .15rem; }
+    .doc-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+      margin-bottom: .6rem;
+    }
+    .doc-tl-row {
+      display: flex;
+      gap: .8rem;
+      font-size: .8rem;
+    }
+    .doc-tl-date {
+      font-weight: 700;
+      color: #A51C30;
+      flex-shrink: 0;
+      width: 70px;
+    }
+    .doc-tl-text { color: #2a2a2a; }
+    table.arg-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .78rem;
+      margin-bottom: .6rem;
+    }
+    table.arg-table th {
+      background: #1a1a2e;
+      color: #fff;
+      padding: .3rem .6rem;
+      text-align: left;
+      font-weight: 700;
+    }
+    table.arg-table td {
+      border: 1px solid #ddd;
+      padding: .3rem .6rem;
+      color: #2a2a2a;
+      vertical-align: top;
+    }
+    table.arg-table tr:nth-child(even) td { background: #fafafa; }
+
+    /* ── Pipeline diagram ───────────────────────── */
+    .pipeline-diagram {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .pipe-stage {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .pipe-stage:last-child { border-bottom: none; margin-bottom: 0; }
+    .pipe-left {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+    }
+    .pipe-num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--crimson);
+      color: #fff;
+      font-weight: 800;
+      font-size: .85rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pipe-label { font-weight: 700; font-size: .95rem; }
+    .pipe-sub { font-size: .77rem; color: var(--text-muted); margin-top: .1rem; }
+    .pipe-detail { font-size: .85rem; color: var(--text-muted); line-height: 1.6; }
+    .pipe-detail strong { color: var(--text); }
+    .pipe-code-inline {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: .15rem .5rem;
+      font-family: var(--mono);
+      font-size: .78rem;
+      color: #a5d6ff;
+    }
+    .pipe-outputs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin-top: .5rem;
+    }
+    .pipe-output-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: .2rem .6rem;
+      font-size: .74rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Outlook Calendar Mockup ────────────────────────────────────── */
+    .oc-wrapper { max-width: 1000px; margin: 0 auto; }
+    .oc-toggle-row {
+      display: flex; align-items: center; gap: .8rem;
+      margin-bottom: 1.4rem; flex-wrap: wrap;
+    }
+    .oc-toggle-btn {
+      padding: .5rem 1.6rem; border-radius: 8px;
+      font-weight: 700; font-size: .82rem; cursor: pointer;
+      border: 1.5px solid var(--border); background: var(--bg-3);
+      color: var(--text-muted); transition: all .2s;
+      font-family: var(--font); letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .oc-toggle-btn.active {
+      border-color: var(--crimson);
+      color: #fff;
+      background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-dark) 100%);
+      box-shadow: 0 4px 16px rgba(165,28,48,.35);
+    }
+    .oc-toggle-hint { font-size: .76rem; color: var(--text-dim); letter-spacing: .02em; }
+    .oc-layout {
+      display: grid; grid-template-columns: 1fr 300px;
+      gap: 1.2rem; align-items: start;
+    }
+    @media (max-width: 820px) { .oc-layout { grid-template-columns: 1fr; } }
+    .oc-cal { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .oc-app-bar {
+      background: var(--bg-3); border-bottom: 1px solid var(--border);
+      padding: .55rem 1rem; display: flex; align-items: center; gap: .8rem;
+      font-size: .78rem; color: var(--text-muted);
+    }
+    .oc-app-bar strong { color: var(--text); font-size: .8rem; }
+    .oc-app-bar .oc-week-nav { font-size: .72rem; color: var(--text-dim); margin-left: auto; }
+    .oc-days-header { display: grid; grid-template-columns: 44px repeat(4, 1fr); border-bottom: 1px solid var(--border); }
+    .oc-day-head {
+      padding: .45rem .3rem; text-align: center;
+      font-size: .7rem; color: var(--text-muted); font-weight: 600;
+      border-right: 1px solid rgba(42,49,71,.5);
+    }
+    .oc-day-head:last-child { border-right: none; }
+    .oc-day-head .day-num { font-size: 1.05rem; font-weight: 800; color: var(--text); display: block; line-height: 1; margin-bottom: .1rem; }
+    .oc-day-head.today .day-num { color: var(--crimson-light); }
+    .oc-body { display: grid; grid-template-columns: 44px repeat(4, 1fr); height: 330px; position: relative; }
+    .oc-time-col { border-right: 1px solid rgba(42,49,71,.5); position: relative; }
+    .oc-time-lbl { position: absolute; right: 5px; font-size: .6rem; color: var(--text-dim); transform: translateY(-50%); white-space: nowrap; }
+    .oc-day-col { border-right: 1px solid rgba(42,49,71,.5); position: relative; }
+    .oc-day-col:last-child { border-right: none; }
+    .oc-hr-line { position: absolute; left: 0; right: 0; border-top: 1px solid rgba(42,49,71,.25); }
+    .oc-event {
+      position: absolute; left: 3px; right: 3px;
+      border-radius: 4px; padding: 4px 5px;
+      font-size: .65rem; font-weight: 700; cursor: pointer;
+      transition: all .4s cubic-bezier(.25,.46,.45,.94);
+      overflow: hidden; line-height: 1.3;
+    }
+    .oc-event.fin2  { background: rgba(79,142,247,.18); border-left: 3px solid #4f8ef7; color: #7db3ff; }
+    .oc-event.bgie  { background: rgba(167,139,250,.18); border-left: 3px solid #a78bfa; color: #c4aeff; }
+    .oc-event.tem   { background: rgba(251,191,36,.15); border-left: 3px solid #fbbf24; color: #fcd34d; }
+    .oc-event.dsail { background: rgba(52,211,153,.12); border-left: 3px solid #34d399; color: #6ee7b7; }
+    .oc-event.selected { outline: 2px solid rgba(255,255,255,.6); outline-offset: 1px; z-index: 5; }
+    .oc-event .ev-time { font-weight: 400; opacity: .7; font-size: .62rem; display: block; }
+    .oc-state-before .ev-title-after, .oc-state-before .detail-after { display: none !important; }
+    .oc-state-after  .ev-title-before, .oc-state-after  .detail-before { display: none !important; }
+    .oc-state-after .oc-event.fin2  { background: rgba(79,142,247,.28); }
+    .oc-state-after .oc-event.bgie  { background: rgba(167,139,250,.28); }
+    .oc-state-after .oc-event.tem   { background: rgba(251,191,36,.22); }
+    .oc-state-after .oc-event.dsail { background: rgba(52,211,153,.22); }
+    .oc-state-before .ev-title-before { opacity: .6; }
+    .oc-detail { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .oc-detail-bar { background: var(--bg-3); border-bottom: 1px solid var(--border); padding: .55rem 1rem; font-size: .72rem; color: var(--text-muted); }
+    .oc-detail-body { padding: 1rem 1.1rem; }
+    .od-title-before { font-size: 1rem; font-weight: 700; color: var(--text-dim); margin-bottom: .75rem; line-height: 1.3; }
+    .od-row { display: flex; gap: .5rem; margin-bottom: .5rem; font-size: .79rem; align-items: flex-start; }
+    .od-icon { flex-shrink: 0; font-size: .82rem; }
+    .od-text { color: var(--text-muted); }
+    .od-empty-body { background: var(--bg-3); border: 1px dashed var(--border); border-radius: 6px; padding: .65rem .8rem; font-size: .76rem; color: var(--text-dim); font-style: italic; margin-top: .8rem; text-align: center; }
+    .od-no-attach { font-size: .76rem; color: var(--text-dim); margin-top: .6rem; font-style: italic; }
+    .od-title-after { font-size: .95rem; font-weight: 700; color: var(--text); margin-bottom: .75rem; line-height: 1.3; }
+    .od-video-block { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: .65rem .8rem; font-family: var(--mono); font-size: .69rem; color: #58a6ff; margin-top: .75rem; line-height: 1.7; }
+    .od-attachments { margin-top: .75rem; display: flex; flex-direction: column; gap: .35rem; }
+    .od-attach { display: flex; align-items: center; gap: .5rem; font-size: .76rem; color: var(--text-muted); background: var(--bg-3); border: 1px solid var(--border); border-radius: 5px; padding: .35rem .65rem; }
+    .od-attach .oa-icon { font-size: .85rem; }
+
+    /* ── Video placeholder ──────────────────────── */
+    .video-placeholder {
+      background: var(--bg-2);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 4rem 2rem;
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .video-play-btn {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--crimson);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 1.8rem;
+      cursor: not-allowed;
+      opacity: .7;
+    }
+    .video-timeline {
+      display: flex;
+      gap: .5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .video-chapter {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .35rem .8rem;
+      font-size: .78rem;
+    }
+    .video-chapter .ts { color: var(--accent-blue); font-family: var(--mono); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">HBS Case Prep<span class="dot">.</span></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="demo.html" class="active">Demo</a>
+      <a href="setup.html">Setup Guide</a>
+      <a href="setup.html" class="nav-cta">Get Started →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Demo header ───────────────────────────────────────────────── -->
+<section class="demo-header">
+  <div class="container">
+    <p class="section-label mb-2">Product Demo</p>
+    <h1 style="margin-bottom:.8rem;">See What Gets Built</h1>
+    <p class="text-muted" style="max-width:520px; margin: 0 auto;">
+      A sample of every output the pipeline produces — from Canvas scrape to calendar sync.
+    </p>
+  </div>
+</section>
+
+<!-- ── Tab navigation ────────────────────────────────────────────── -->
+<section class="section-sm">
+  <div class="container">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="showTab('cheatsheet', this)">📄 Sample Cheatsheet</button>
+      <button class="tab-btn" onclick="showTab('pipeline', this)">⚙️ Pipeline Walkthrough</button>
+      <button class="tab-btn" onclick="showTab('video', this)">📹 Video Walkthrough</button>
+      <button class="tab-btn" onclick="showTab('calendar', this)">📅 Calendar Before / After</button>
+    </div>
+
+    <!-- ── Tab 1: Cheatsheet ──────────────────────────────────────── -->
+    <div id="tab-cheatsheet" class="tab-panel active">
+      <div style="text-align:center; margin-bottom: 2rem;">
+        <span class="badge badge-green" style="margin-right:.5rem;">22-page case</span>
+        <span class="badge badge-blue">FIN2 · Class 20</span>
+        <span style="color:var(--text-dim); font-size:.8rem; margin-left:.8rem;">~1,800 words · 4 pages · intermediate depth</span>
+      </div>
+
+      <div class="doc-window">
+        <div class="doc-titlebar">
+          <div class="doc-dot" style="background:#ff5f57"></div>
+          <div class="doc-dot" style="background:#febc2e"></div>
+          <div class="doc-dot" style="background:#28c840"></div>
+          <span style="margin-left:.5rem;">20 FIN2 Turnaround at Mattel Day 1 Case Analysis Cheatsheet.docx</span>
+        </div>
+        <div class="doc-body">
+          <div class="doc-title">Turnaround at Mattel Day 1</div>
+          <div class="doc-subtitle">FIN2 · Class 20 · Wednesday, April 15, 2026 · 10:40 AM – 12:00 PM</div>
+
+          <table class="doc-meta">
+            <tr><td>Course</td><td>FIN2 — Financial Management</td></tr>
+            <tr><td>Case</td><td>Turnaround at Mattel (HBS 9-216-054)</td></tr>
+            <tr><td>Key People</td><td>Anne Lim (CEO), Bryan Stockton (predecessor), Mattel Board</td></tr>
+            <tr><td>Dollar Figure</td><td>$6.0B revenue, ~$1B operating loss over turnaround window</td></tr>
+            <tr><td>Core Tension</td><td>Operational turnaround vs. financial solvency vs. strategic reinvention</td></tr>
+          </table>
+
+          <div class="doc-section">Executive Summary</div>
+          <ul class="doc-bullets">
+            <li>Mattel entered 2015 with 4 consecutive quarters of revenue decline, driven by Barbie weakness, retailer inventory destocking, and FX headwinds.</li>
+            <li>Anne Lim's turnaround rests on three planks: brand reinvention (Barbie &amp; Hot Wheels), supply chain restructuring (closing facilities), and cost reduction ($500M target).</li>
+            <li>Funding the turnaround requires careful sequencing — the company has leverage ratios approaching covenant limits and limited free cash flow flexibility in years 1–2.</li>
+            <li>Solvency is not at immediate risk, but D* optimization is constrained by EBITDA compression until cost reductions materialize.</li>
+          </ul>
+
+          <div class="doc-section">Key Timeline</div>
+          <div class="doc-timeline">
+            <div class="doc-tl-row"><span class="doc-tl-date">2011–13</span><span class="doc-tl-text">Peak revenue ~$6.5B; Barbie share declining as Monster High disrupts.</span></div>
+            <div class="doc-tl-row"><span class="doc-tl-date">2014</span><span class="doc-tl-text">Barbie revenue -16%; Hot Wheels flat; Stockton ousted; Lim appointed CEO.</span></div>
+            <div class="doc-tl-row"><span class="doc-tl-date">2015</span><span class="doc-tl-text">Case opens. Revenue -$500M YoY. $500M cost plan announced. 6 plant closures.</span></div>
+            <div class="doc-tl-row"><span class="doc-tl-date">2016E</span><span class="doc-tl-text">First year of cost savings hitting P&amp;L; FCF recovery depends on WC improvements.</span></div>
+            <div class="doc-tl-row"><span class="doc-tl-date">2017–18E</span><span class="doc-tl-text">Full savings run-rate; solvency stabilizes if revenue stabilizes at current levels.</span></div>
+          </div>
+
+          <div class="doc-section">Argument Landscape</div>
+          <table class="arg-table">
+            <thead><tr><th>Position</th><th>Supporting Evidence</th><th>Counterargument</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Plan is sound &amp; executable</strong></td>
+                <td>Concrete $500M target, specific facility closures identified, brand data shows Barbie engagement recovering with Fashionista line</td>
+                <td>Cost savings are back-loaded; Lim has no prior turnaround track record at this scale; retail relationships deteriorating</td>
+              </tr>
+              <tr>
+                <td><strong>Solvency risk is real</strong></td>
+                <td>Net debt/EBITDA ~3.5x; covenant likely 3.75x; FCF negative in 2015 base; dividend still being paid</td>
+                <td>Mattel has strong brand equity as collateral; banks have incentive to waive covenants; dividend cut is available lever</td>
+              </tr>
+              <tr>
+                <td><strong>Strategic pivot needed</strong></td>
+                <td>Secular shift to digital/screen entertainment; Barbie and Hot Wheels are analog brands losing share</td>
+                <td>Entertainment licensing (e.g. Barbie movie) extends brand runway; Lego shows physical toys can be repositioned</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="doc-section">Q&amp;A — Canvas Questions</div>
+
+          <div class="doc-qa-q">Q1. What are the essential elements of Anne Lim's turnaround plan? What are the prospects for a successful turnaround?</div>
+          <div class="doc-qa-a">
+            <ul>
+              <li><strong>Cost:</strong> $500M gross cost reduction by 2017, primarily from supply chain consolidation (6 plant closures), headcount reduction (~2,200 jobs), and IT rationalization.</li>
+              <li><strong>Revenue:</strong> Re-invent Barbie via Fashionista diversity strategy and Barbie Vlogger content; grow Hot Wheels with collectors/lifestyle segment; lean into licensed IP.</li>
+              <li><strong>Organization:</strong> Move from brand siloes to segment structure; eliminate SKU proliferation; improve retailer sell-through to reduce buybacks.</li>
+              <li><strong>Prospects:</strong> Moderate. Plan is credible operationally, but success depends on Barbie revenue stabilizing — if secular decline continues, cost savings merely slow the bleeding. Key risk: retailer destocking cycle extends into 2016, compressing FCF before savings hit.</li>
+            </ul>
+          </div>
+
+          <div class="doc-qa-q">Q2. Build a plan for funding the turnaround: cash sources and needs over 4 years. Does Mattel have a solvency issue? What is the target D*?</div>
+          <div class="doc-qa-a">
+            <ul>
+              <li><strong>Cash needs (Years 1–2):</strong> Restructuring charges ~$300M, capex maintenance ~$175M/yr, dividend ~$500M/yr. FCF likely negative in 2015 before savings.</li>
+              <li><strong>Cash sources:</strong> Working capital release from inventory reduction (~$200M), divesting non-core brands, revolver draw (~$1B available), dividend cut (optional).</li>
+              <li><strong>Solvency:</strong> Not immediately at risk — Mattel has investment-grade rating and revolver headroom. Risk is covenant breach if EBITDA continues to fall; Net D/EBITDA at 3.5x is uncomfortably close to typical ~4.0x covenant.</li>
+              <li><strong>Target D*:</strong> Given volatile FCF and covenant proximity, D* should target 2.5–3.0x Net D/EBITDA (vs. current ~3.5x) — requires either dividend cut, asset sales, or faster EBITDA recovery to close the gap within 2 years.</li>
+            </ul>
+          </div>
+
+          <div class="doc-qa-q">Q6. Using a DCF, value the equity of Mattel. How does this compare to the current stock price?</div>
+          <div class="doc-qa-a">
+            <ul>
+              <li><strong>Base assumptions:</strong> Revenue trough 2015 at $5.7B, recovering to $6.2B by 2019; EBIT margin recovers from ~5% to ~12% as cost savings materialize; WACC ~8.5% (levered beta ~1.1, MRP 5.5%, Rf 2.3%).</li>
+              <li><strong>Terminal value:</strong> Exit EBITDA multiple of 9.0–10.0x implies equity value $4.5B–$5.5B on bear-to-base scenario.</li>
+              <li><strong>Upside:</strong> If Barbie re-accelerates and FCF normalizes at ~$700M by 2018, equity value approaches $7–8B — close to 2013 peak market cap.</li>
+              <li><strong>vs. Current price:</strong> At ~$24/share (case date), implied market cap ~$8.3B — market appears to be pricing in recovery but discounting execution risk. DCF suggests meaningful downside if plan underdelivers.</li>
+            </ul>
+          </div>
+
+          <div class="doc-section">Hidden Assumptions &amp; Risks</div>
+          <div class="doc-two-col">
+            <div class="doc-mini-card">
+              <div class="label">Key Assumption</div>
+              <p>Barbie revenue stabilizes at 2015 trough levels — the entire DCF is highly sensitive to even 5% further decline compounding over 4 years.</p>
+            </div>
+            <div class="doc-mini-card">
+              <div class="label">Execution Risk</div>
+              <p>Cost savings require union negotiations in Mexico facilities; delays push break-even out 12–18 months and strain covenant headroom.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:2rem;">
+        <span class="badge badge-crimson">This is a simulated output for demo purposes</span>
+        <p class="text-muted mt-2" style="font-size:.82rem;">Real cheatsheets are generated from the actual case PDF using the Anthropic API. Content and length scale dynamically per case.</p>
+      </div>
+    </div>
+
+    <!-- ── Tab 2: Pipeline Walkthrough ──────────────────────────── -->
+    <div id="tab-pipeline" class="tab-panel">
+      <div class="pipeline-diagram">
+
+        <div class="pipe-stage">
+          <div class="pipe-left">
+            <div class="pipe-num">1</div>
+            <div>
+              <div class="pipe-label">Canvas Scrape</div>
+              <div class="pipe-sub"><span class="pipe-code-inline">canvas_scraper.py</span></div>
+            </div>
+          </div>
+          <div class="pipe-detail">
+            Hits the <strong>Canvas REST API</strong> at <code>hbs.instructure.com/api/v1/courses/{id}/assignments</code> for each configured course. Parses assignment HTML to extract <strong>assignment questions</strong>, <strong>HBSP case links</strong>, <strong>Canvas-native file links</strong> (xlsx, docx), and <strong>video references</strong> (YouTube, Panopto). Enriches entries with actual class times from the Canvas calendar events API.
+            <div class="pipe-outputs">
+              <span class="pipe-output-tag">📋 CLASS_ENTRY dicts</span>
+              <span class="pipe-output-tag">❓ Assignment questions</span>
+              <span class="pipe-output-tag">🔗 File URLs (all types)</span>
+              <span class="pipe-output-tag">🕐 Class times</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-stage">
+          <div class="pipe-left">
+            <div class="pipe-num">2</div>
+            <div>
+              <div class="pipe-label">File Download</div>
+              <div class="pipe-sub"><span class="pipe-code-inline">hbsp_downloader.py</span></div>
+            </div>
+          </div>
+          <div class="pipe-detail">
+            Routes each file by type: <strong>HBSP links</strong> → Playwright browser navigates through Canvas LTI handshake, intercepts the file response at the network layer, and saves bytes directly (no click-based download dialogs). <strong>Canvas-native files</strong> → injects session cookies from saved auth into a direct HTTP request. <strong>External links</strong> → plain authenticated GET with Content-Type detection. All files are renamed from magic bytes (not filename extension), so a "file.unknown" downloaded as a ZIP of XML becomes "file.xlsx" automatically.
+            <div class="pipe-outputs">
+              <span class="pipe-output-tag">📕 Case PDFs</span>
+              <span class="pipe-output-tag">📊 Excel exhibits (.xlsx)</span>
+              <span class="pipe-output-tag">📂 Canvas uploads (any type)</span>
+              <span class="pipe-output-tag">📹 Video URLs (noted, not downloaded)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-stage">
+          <div class="pipe-left">
+            <div class="pipe-num">3</div>
+            <div>
+              <div class="pipe-label">AI Analysis</div>
+              <div class="pipe-sub"><span class="pipe-code-inline">ai_case_analyzer.py</span></div>
+            </div>
+          </div>
+          <div class="pipe-detail">
+            Extracts all text from case PDFs via <strong>pdfplumber</strong>, counts pages to determine output length target. Sends the full case text + assignment questions to <strong>claude-sonnet-4-6</strong> with a structured JSON schema prompt. The model returns a structured analysis object with sections: executive summary, timeline, key actors, argument framework, risks, hidden assumptions, and per-question Q&amp;A. Output word count scales proportionally: 4-page case → ~500 words, 22-page case → ~1,800 words, hard cap at 2,000 words.
+            <div class="pipe-outputs">
+              <span class="pipe-output-tag">🧠 Structured JSON analysis</span>
+              <span class="pipe-output-tag">📏 Length-calibrated output</span>
+              <span class="pipe-output-tag">❓ Per-question answers</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-stage">
+          <div class="pipe-left">
+            <div class="pipe-num">4</div>
+            <div>
+              <div class="pipe-label">Cheatsheet Builder</div>
+              <div class="pipe-sub"><span class="pipe-code-inline">gen_cheatsheets_v2.py</span></div>
+            </div>
+          </div>
+          <div class="pipe-detail">
+            Converts the JSON analysis into a formatted <strong>.docx</strong> using python-docx. Each section type renders differently: metadata as a styled table, executive summary as bullets, timeline as date-keyed rows, argument landscape as a 3-column comparison table, Q&amp;A answers as labeled blocks with course-color accents. File is named with the canonical convention: <code>{class_num} {COURSE} {Case Name} Case Analysis Cheatsheet.docx</code> and saved directly to the course folder in OneDrive.
+            <div class="pipe-outputs">
+              <span class="pipe-output-tag">📄 .docx cheatsheet</span>
+              <span class="pipe-output-tag">📁 Saved to OneDrive course folder</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipe-stage">
+          <div class="pipe-left">
+            <div class="pipe-num">5</div>
+            <div>
+              <div class="pipe-label">Outlook Sync</div>
+              <div class="pipe-sub"><span class="pipe-code-inline">outlook_sync.py</span></div>
+            </div>
+          </div>
+          <div class="pipe-detail">
+            Uses the <strong>Microsoft Graph API</strong> (direct Exchange access) to find HBS push events (e.g. "FIN2 C") by course abbreviation and date. PATCHes the event: renames subject to <code>{num} {COURSE} {Case Name}</code>, attaches the cheatsheet + every downloaded file for that class (PDFs, xlsx, docx — all types), and embeds video links as plain text in the event body. Falls back to MAPI COM for local Outlook access if Graph token is unavailable.
+            <div class="pipe-outputs">
+              <span class="pipe-output-tag">📅 Event renamed</span>
+              <span class="pipe-output-tag">📎 All files attached</span>
+              <span class="pipe-output-tag">📹 Video links in body</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Tab 3: Video ──────────────────────────────────────────── -->
+    <div id="tab-video" class="tab-panel">
+      <div class="video-placeholder">
+        <div class="video-play-btn">▶</div>
+        <h3 style="margin-bottom:.6rem; color: var(--text);">Full Walkthrough — Coming Soon</h3>
+        <p class="text-muted" style="max-width:460px; margin: 0 auto 1rem;">
+          A screen recording of the complete pipeline running live — Canvas scrape through Outlook sync —
+          will be posted here. Estimated length: 8–10 minutes.
+        </p>
+        <p style="color: var(--text-dim); font-size:.82rem;">
+          In the meantime, the Setup Guide walks through every step manually with copy-paste commands.
+        </p>
+        <div class="video-timeline">
+          <div class="video-chapter"><span class="ts">0:00</span><span>Intro &amp; problem overview</span></div>
+          <div class="video-chapter"><span class="ts">1:30</span><span>Canvas token setup</span></div>
+          <div class="video-chapter"><span class="ts">2:45</span><span>HBSP auth session</span></div>
+          <div class="video-chapter"><span class="ts">4:00</span><span>First run — weekly_prep.py</span></div>
+          <div class="video-chapter"><span class="ts">5:30</span><span>Cheatsheet output review</span></div>
+          <div class="video-chapter"><span class="ts">7:00</span><span>Outlook calendar result</span></div>
+        </div>
+        <div style="margin-top:2rem;">
+          <a href="setup.html" class="btn btn-primary">Read the Setup Guide Instead →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tab 4: Calendar Before/After ────────────────────────────── -->
+    <div id="tab-calendar" class="tab-panel">
+      <div class="oc-wrapper" id="oc-root">
+
+        <div style="margin-bottom:1.2rem;">
+          <h3 style="margin-bottom:.4rem;">Your Calendar — Before &amp; After</h3>
+          <p style="color:var(--text-muted); font-size:.88rem; max-width:620px;">
+            HBS pushes calendar events with generic codes like "FIN2 C" — no context, no files, no idea what case you're walking into.
+            One weekly run transforms every event: renamed with the full case title, cheatsheet attached, all exhibits attached, video links embedded in the body.
+          </p>
+        </div>
+
+        <div class="oc-toggle-row">
+          <button class="oc-toggle-btn active" id="btn-before" onclick="setCalState('before')">← BEFORE</button>
+          <button class="oc-toggle-btn" id="btn-after" onclick="setCalState('after')">AFTER →</button>
+          <span class="oc-toggle-hint">Toggle to see what the pipeline does to your calendar</span>
+        </div>
+
+        <div class="oc-layout">
+          <!-- Calendar grid -->
+          <div class="oc-cal">
+            <div class="oc-app-bar">
+              <span>📅</span>
+              <strong>Microsoft Outlook — Calendar</strong>
+              <span class="oc-week-nav">◀ &nbsp; Apr 14 – 20, 2026 &nbsp; ▶</span>
+            </div>
+            <!-- Day headers -->
+            <div class="oc-days-header">
+              <div class="oc-day-head" style="border-right:1px solid rgba(42,49,71,.5)"></div>
+              <div class="oc-day-head"><span class="day-num">14</span>MON</div>
+              <div class="oc-day-head today"><span class="day-num">15</span>TUE</div>
+              <div class="oc-day-head"><span class="day-num">16</span>WED</div>
+              <div class="oc-day-head"><span class="day-num">17</span>THU</div>
+            </div>
+            <!-- Grid body: 9am–3pm = 6h = 360px, but we'll use 330px (5.5h to 2:30) -->
+            <div class="oc-body">
+              <!-- Time column -->
+              <div class="oc-time-col">
+                <span class="oc-time-lbl" style="top:0">9 AM</span>
+                <span class="oc-time-lbl" style="top:60px">10 AM</span>
+                <span class="oc-time-lbl" style="top:120px">11 AM</span>
+                <span class="oc-time-lbl" style="top:180px">12 PM</span>
+                <span class="oc-time-lbl" style="top:240px">1 PM</span>
+                <span class="oc-time-lbl" style="top:300px">2 PM</span>
+              </div>
+              <!-- Mon: no classes -->
+              <div class="oc-day-col">
+                <div class="oc-hr-line" style="top:0"></div>
+                <div class="oc-hr-line" style="top:60px"></div>
+                <div class="oc-hr-line" style="top:120px"></div>
+                <div class="oc-hr-line" style="top:180px"></div>
+                <div class="oc-hr-line" style="top:240px"></div>
+                <div class="oc-hr-line" style="top:300px"></div>
+              </div>
+              <!-- Tue: FIN2 10:40-12:00, BGIE 1:00-2:20 -->
+              <div class="oc-day-col">
+                <div class="oc-hr-line" style="top:0"></div>
+                <div class="oc-hr-line" style="top:60px"></div>
+                <div class="oc-hr-line" style="top:120px"></div>
+                <div class="oc-hr-line" style="top:180px"></div>
+                <div class="oc-hr-line" style="top:240px"></div>
+                <div class="oc-hr-line" style="top:300px"></div>
+                <!-- FIN2: 10:40 = +100min from 9am = top:100px; 12:00 = 180min → height:80px -->
+                <div class="oc-event fin2 selected" style="top:100px; height:78px" onclick="selectEvent('fin2-tue')">
+                  <span class="ev-title-before">FIN2 C</span>
+                  <span class="ev-title-after">20 FIN2 Turnaround at Mattel Day 1</span>
+                  <span class="ev-time">10:40 – 12:00 PM</span>
+                </div>
+                <!-- BGIE: 1:00pm = +240min = top:240px; 2:20 = 320min → height:80px -->
+                <div class="oc-event bgie" style="top:240px; height:78px" onclick="selectEvent('bgie-tue')">
+                  <span class="ev-title-before">BGIE C</span>
+                  <span class="ev-title-after">23 BGIE Kuwait Finance House Crisis</span>
+                  <span class="ev-time">1:00 – 2:20 PM</span>
+                </div>
+              </div>
+              <!-- Wed: FIN2 10:40-12:00, DSAIL 6pm (note separately) -->
+              <div class="oc-day-col">
+                <div class="oc-hr-line" style="top:0"></div>
+                <div class="oc-hr-line" style="top:60px"></div>
+                <div class="oc-hr-line" style="top:120px"></div>
+                <div class="oc-hr-line" style="top:180px"></div>
+                <div class="oc-hr-line" style="top:240px"></div>
+                <div class="oc-hr-line" style="top:300px"></div>
+                <div class="oc-event fin2" style="top:100px; height:78px" onclick="selectEvent('fin2-wed')">
+                  <span class="ev-title-before">FIN2 C</span>
+                  <span class="ev-title-after">21 FIN2 Turnaround at Mattel Day 2</span>
+                  <span class="ev-time">10:40 – 12:00 PM</span>
+                </div>
+                <div class="oc-event dsail" style="top:240px; height:52px; font-size:.6rem" onclick="selectEvent('dsail-wed')">
+                  <span class="ev-title-before">DSAIL C</span>
+                  <span class="ev-title-after">20 DSAIL AI in Healthcare</span>
+                  <span class="ev-time">+eve: 6–7:20 PM</span>
+                </div>
+              </div>
+              <!-- Thu: BGIE 10:40-12:00, TEM 1:00-2:20 -->
+              <div class="oc-day-col">
+                <div class="oc-hr-line" style="top:0"></div>
+                <div class="oc-hr-line" style="top:60px"></div>
+                <div class="oc-hr-line" style="top:120px"></div>
+                <div class="oc-hr-line" style="top:180px"></div>
+                <div class="oc-hr-line" style="top:240px"></div>
+                <div class="oc-hr-line" style="top:300px"></div>
+                <div class="oc-event bgie" style="top:100px; height:78px" onclick="selectEvent('bgie-thu')">
+                  <span class="ev-title-before">BGIE C</span>
+                  <span class="ev-title-after">24 BGIE Poland Energy Transition</span>
+                  <span class="ev-time">10:40 – 12:00 PM</span>
+                </div>
+                <div class="oc-event tem" style="top:240px; height:78px" onclick="selectEvent('tem-thu')">
+                  <span class="ev-title-before">TEM C</span>
+                  <span class="ev-title-after">18 TEM Scaling Renewable Energy</span>
+                  <span class="ev-time">1:00 – 2:20 PM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detail panel -->
+          <div class="oc-detail">
+            <div class="oc-detail-bar">📋 Event Detail — click any event</div>
+            <div class="oc-detail-body" id="detail-body">
+              <!-- Before state content -->
+              <div class="detail-before">
+                <div class="od-title-before" id="od-title-before">FIN2 C</div>
+                <div class="od-row"><span class="od-icon">🕐</span><span class="od-text">Tue, Apr 15 · 10:40 AM – 12:00 PM</span></div>
+                <div class="od-row"><span class="od-icon">📍</span><span class="od-text">Aldrich 109</span></div>
+                <div class="od-row"><span class="od-icon">👤</span><span class="od-text">Organized by HBS Registrar</span></div>
+                <div class="od-empty-body">No body text. No description. Nothing.</div>
+                <div class="od-no-attach">📎 No attachments</div>
+              </div>
+              <!-- After state content -->
+              <div class="detail-after">
+                <div class="od-title-after" id="od-title-after">20 FIN2 Turnaround at Mattel Day 1</div>
+                <div class="od-row"><span class="od-icon">🕐</span><span class="od-text">Tue, Apr 15 · 10:40 AM – 12:00 PM</span></div>
+                <div class="od-row"><span class="od-icon">📍</span><span class="od-text">Aldrich 109</span></div>
+                <div class="od-row"><span class="od-icon">👤</span><span class="od-text">Organized by HBS Registrar</span></div>
+                <div class="od-video-block" id="od-video-block">── VIDEO LINKS ──────────────────<br>
+  Class 20 Prep: https://panopto.hbs.edu/Panopto/Pages/Viewer.aspx?id=fin2-c20<br>
+────────────────────────────────</div>
+                <div class="od-attachments" id="od-attachments">
+                  <div class="od-attach"><span class="oa-icon">📄</span>20 FIN2 Turnaround at Mattel Case Analysis Cheatsheet.docx</div>
+                  <div class="od-attach"><span class="oa-icon">📕</span>Turnaround at Mattel (HBS 9-216-054).pdf</div>
+                  <div class="od-attach"><span class="oa-icon">📊</span>Mattel Financial Model Exhibit A.xlsx</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key stats row -->
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:.8rem; margin-top:1.5rem;">
+          <div style="padding:1rem 1.2rem; background:rgba(52,211,153,.06); border:1px solid rgba(52,211,153,.18); border-radius:10px; text-align:center;">
+            <div style="font-size:1.8rem; font-weight:900; color:var(--accent-green); letter-spacing:-.03em; line-height:1;">6</div>
+            <div style="font-size:.72rem; color:var(--text-muted); margin-top:.3rem; text-transform:uppercase; letter-spacing:.06em;">Events renamed</div>
+          </div>
+          <div style="padding:1rem 1.2rem; background:rgba(79,142,247,.06); border:1px solid rgba(79,142,247,.18); border-radius:10px; text-align:center;">
+            <div style="font-size:1.8rem; font-weight:900; color:var(--accent-blue); letter-spacing:-.03em; line-height:1;">14</div>
+            <div style="font-size:.72rem; color:var(--text-muted); margin-top:.3rem; text-transform:uppercase; letter-spacing:.06em;">Files attached</div>
+          </div>
+          <div style="padding:1rem 1.2rem; background:rgba(167,139,250,.06); border:1px solid rgba(167,139,250,.18); border-radius:10px; text-align:center;">
+            <div style="font-size:1.8rem; font-weight:900; color:var(--accent-purple); letter-spacing:-.03em; line-height:1;">4</div>
+            <div style="font-size:.72rem; color:var(--text-muted); margin-top:.3rem; text-transform:uppercase; letter-spacing:.06em;">Video links embedded</div>
+          </div>
+          <div style="padding:1rem 1.2rem; background:rgba(251,191,36,.06); border:1px solid rgba(251,191,36,.18); border-radius:10px; text-align:center;">
+            <div style="font-size:1.8rem; font-weight:900; color:var(--accent-yellow); letter-spacing:-.03em; line-height:1;">~47s</div>
+            <div style="font-size:.72rem; color:var(--text-muted); margin-top:.3rem; text-transform:uppercase; letter-spacing:.06em;">Total sync time</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Before / After ────────────────────────────────────────────── -->
+<section style="padding:6rem 0; background:var(--bg-2); border-top:1px solid var(--border);">
+  <div class="container">
+
+    <div class="text-center" style="margin-bottom:3rem;">
+      <p class="section-label">The Transformation</p>
+      <h2 style="margin:.5rem 0 .8rem;">This is what changes every week.</h2>
+      <p style="color:var(--text-muted); max-width:520px; margin:0 auto; font-size:.9rem; line-height:1.7;">
+        One command Sunday night. By Monday your calendar is renamed, every file is attached,
+        and each event body has the case context and video links already in it.
+      </p>
+    </div>
+
+    <!-- GIF with frame -->
+    <div style="max-width:960px; margin:0 auto 3.5rem; position:relative;">
+      <div style="position:absolute; inset:-1px; border-radius:14px; background:linear-gradient(135deg,rgba(165,28,48,.4),rgba(79,142,247,.2)); z-index:0; pointer-events:none;"></div>
+      <div style="position:relative; z-index:1; border-radius:13px; overflow:hidden; border:1px solid var(--border); box-shadow:0 20px 60px rgba(0,0,0,.6);">
+        <div style="background:var(--bg-3); padding:.55rem 1rem; display:flex; align-items:center; gap:.6rem; border-bottom:1px solid var(--border);">
+          <div style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></div>
+          <div style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></div>
+          <div style="width:11px;height:11px;border-radius:50%;background:#28c840;"></div>
+          <span style="font-size:.73rem; color:var(--text-dim); margin-left:.3rem; font-family:var(--mono);">Microsoft Outlook — Calendar — Week of Apr 14, 2026</span>
+          <span style="margin-left:auto; font-size:.68rem; color:var(--crimson-light); font-weight:700; letter-spacing:.06em; text-transform:uppercase;">BEFORE → AFTER</span>
+        </div>
+        <img src="calendar-transform.gif" alt="Outlook calendar before and after the pipeline runs"
+             style="width:100%; display:block;">
+      </div>
+    </div>
+
+    <!-- Two-column comparison -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; max-width:900px; margin:0 auto;">
+
+      <!-- Before -->
+      <div style="background:var(--bg-3); border:1px solid rgba(200,60,70,.25); border-radius:var(--radius); overflow:hidden;">
+        <div style="padding:.8rem 1.4rem; background:rgba(165,28,48,.08); border-bottom:1px solid rgba(200,60,70,.2); display:flex; align-items:center; gap:.6rem;">
+          <span style="font-size:.72rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:#ff6b6b;">Before</span>
+          <span style="font-size:.72rem; color:var(--text-dim); margin-left:auto;">Every week, every class, manually</span>
+        </div>
+        <div style="padding:1.4rem;">
+          <div style="display:flex; flex-direction:column; gap:.75rem;">
+            <div style="display:flex; gap:.75rem; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:5px; background:rgba(165,28,48,.15); border:1px solid rgba(165,28,48,.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.72rem; color:#ff6b6b; font-weight:900;">1</div>
+              <span style="font-size:.84rem; color:var(--text-muted); line-height:1.5;">Log into Canvas. Find each class. Find the case link. Click through to HBSP.</span>
+            </div>
+            <div style="display:flex; gap:.75rem; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:5px; background:rgba(165,28,48,.15); border:1px solid rgba(165,28,48,.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.72rem; color:#ff6b6b; font-weight:900;">2</div>
+              <span style="font-size:.84rem; color:var(--text-muted); line-height:1.5;">Download the PDF. Find the exhibit separately. Download that too. Rename both manually.</span>
+            </div>
+            <div style="display:flex; gap:.75rem; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:5px; background:rgba(165,28,48,.15); border:1px solid rgba(165,28,48,.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.72rem; color:#ff6b6b; font-weight:900;">3</div>
+              <span style="font-size:.84rem; color:var(--text-muted); line-height:1.5;">Paste into ChatGPT. Format the output. Save it somewhere. Hope you can find it before class.</span>
+            </div>
+            <div style="display:flex; gap:.75rem; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:5px; background:rgba(165,28,48,.15); border:1px solid rgba(165,28,48,.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.72rem; color:#ff6b6b; font-weight:900;">4</div>
+              <span style="font-size:.84rem; color:var(--text-muted); line-height:1.5;">Calendar still says "FIN2 C". No attachments. No case name. Open Outlook — you have no idea what you're walking into.</span>
+            </div>
+          </div>
+          <div style="margin-top:1.3rem; padding:.8rem 1rem; background:rgba(165,28,48,.06); border-radius:8px; border:1px solid rgba(165,28,48,.18);">
+            <span style="font-size:.8rem; color:#ff8094; font-weight:600;">⏱&ensp;45–60 min/week of pure overhead. Compounds all semester.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- After -->
+      <div style="background:var(--bg-3); border:1px solid rgba(52,211,153,.25); border-radius:var(--radius); overflow:hidden;">
+        <div style="padding:.8rem 1.4rem; background:rgba(52,211,153,.06); border-bottom:1px solid rgba(52,211,153,.2); display:flex; align-items:center; gap:.6rem;">
+          <span style="font-size:.72rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-green);">After</span>
+          <span style="font-size:.72rem; color:var(--text-dim); margin-left:auto;">One command Sunday night</span>
+        </div>
+        <div style="padding:1.4rem;">
+          <div style="display:flex; flex-direction:column; gap:.75rem;">
+            <div style="display:flex; gap:.75rem; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:5px; background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.72rem; color:var(--accent-green); font-weight:900;">✓</div>
+              <span style="font-size:.84rem; color:var(--text-muted); line-height:1.5;">Every PDF, exhibit, and Canvas upload downloaded and named correctly — automatically.</span>
+            </div>
+            <div style="display:flex; gap:.75rem; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:5px; background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.72rem; color:var(--accent-green); font-weight:900;">✓</div>
+              <span style="font-size:.84rem; color:var(--text-muted); line-height:1.5;">AI-generated cheatsheet per class: Q&amp;A, timeline, argument map, hidden assumptions — scaled to case length.</span>
+            </div>
+            <div style="display:flex; gap:.75rem; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:5px; background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.72rem; color:var(--accent-green); font-weight:900;">✓</div>
+              <span style="font-size:.84rem; color:var(--text-muted); line-height:1.5;">Calendar events renamed with full case title. Every file attached. Video links in the event body.</span>
+            </div>
+            <div style="display:flex; gap:.75rem; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:5px; background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.72rem; color:var(--accent-green); font-weight:900;">✓</div>
+              <span style="font-size:.84rem; color:var(--text-muted); line-height:1.5;">Open Outlook Monday morning: you know exactly what every class is, have everything you need, and didn't lift a finger.</span>
+            </div>
+          </div>
+          <div style="margin-top:1.3rem; padding:.8rem 1rem; background:rgba(52,211,153,.05); border-radius:8px; border:1px solid rgba(52,211,153,.18);">
+            <span style="font-size:.8rem; color:var(--accent-green); font-weight:600;">⚡&ensp;~3–4 minutes total. One command. Nothing else to do.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>HBS Case Prep Simplified &nbsp;·&nbsp; RC MBA 2026 DSAIL Final Project &nbsp;·&nbsp; Jim Daughtrey</p>
+  </div>
+</footer>
+
+<script>
+  function showTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  /* ── Calendar before/after ── */
+  var calState = 'before';
+
+  var eventData = {
+    'fin2-tue': {
+      before: { title: 'FIN2 C', time: 'Tue, Apr 15 · 10:40 AM – 12:00 PM', location: 'Aldrich 109' },
+      after: {
+        title: '20 FIN2 Turnaround at Mattel Day 1',
+        time: 'Tue, Apr 15 · 10:40 AM – 12:00 PM', location: 'Aldrich 109',
+        video: 'Class 20 Prep Video: panopto.hbs.edu/...fin2-c20',
+        files: ['📄 20 FIN2 Turnaround at Mattel Case Analysis Cheatsheet.docx',
+                '📕 Turnaround at Mattel (HBS 9-216-054).pdf',
+                '📊 Mattel Financial Model Exhibit A.xlsx']
+      }
+    },
+    'bgie-tue': {
+      before: { title: 'BGIE C', time: 'Tue, Apr 15 · 1:00 – 2:20 PM', location: 'Aldrich 109' },
+      after: {
+        title: '23 BGIE Kuwait Finance House Crisis',
+        time: 'Tue, Apr 15 · 1:00 – 2:20 PM', location: 'Aldrich 109',
+        video: 'Kuwait Finance House Background: panopto.hbs.edu/...bgie-c23',
+        files: ['📄 23 BGIE Kuwait Finance House Case Analysis Cheatsheet.docx',
+                '📕 The Crisis at Kuwait Finance House.pdf']
+      }
+    },
+    'fin2-wed': {
+      before: { title: 'FIN2 C', time: 'Wed, Apr 16 · 10:40 AM – 12:00 PM', location: 'Aldrich 109' },
+      after: {
+        title: '21 FIN2 Turnaround at Mattel Day 2',
+        time: 'Wed, Apr 16 · 10:40 AM – 12:00 PM', location: 'Aldrich 109',
+        video: null,
+        files: ['📄 21 FIN2 Turnaround at Mattel Day 2 Case Analysis Cheatsheet.docx',
+                '📕 Turnaround at Mattel (HBS 9-216-054).pdf',
+                '📊 Mattel DCF Model — Student Exhibit.xlsx']
+      }
+    },
+    'dsail-wed': {
+      before: { title: 'DSAIL C', time: 'Wed, Apr 16 · 6:00 – 7:20 PM', location: 'Cotting 109' },
+      after: {
+        title: '20 DSAIL AI in Healthcare',
+        time: 'Wed, Apr 16 · 6:00 – 7:20 PM', location: 'Cotting 109',
+        video: 'Guest Speaker Pre-Read: panopto.hbs.edu/...dsail-c20',
+        files: ['📄 20 DSAIL AI in Healthcare Case Analysis Cheatsheet.docx',
+                '📕 AI in Healthcare - Provider Perspective.pdf']
+      }
+    },
+    'bgie-thu': {
+      before: { title: 'BGIE C', time: 'Thu, Apr 17 · 10:40 AM – 12:00 PM', location: 'Aldrich 109' },
+      after: {
+        title: '24 BGIE Poland Energy Transition',
+        time: 'Thu, Apr 17 · 10:40 AM – 12:00 PM', location: 'Aldrich 109',
+        video: 'Poland Energy Policy Overview: panopto.hbs.edu/...bgie-c24',
+        files: ['📄 24 BGIE Poland Energy Transition Case Analysis Cheatsheet.docx',
+                '📕 Poland — The Energy Transition Dilemma.pdf',
+                '📊 Poland Energy Mix Model.xlsx']
+      }
+    },
+    'tem-thu': {
+      before: { title: 'TEM C', time: 'Thu, Apr 17 · 1:00 – 2:20 PM', location: 'Aldrich 109' },
+      after: {
+        title: '18 TEM Scaling Renewable Energy',
+        time: 'Thu, Apr 17 · 1:00 – 2:20 PM', location: 'Aldrich 109',
+        video: null,
+        files: ['📄 18 TEM Scaling Renewable Energy Case Analysis Cheatsheet.docx',
+                '📕 Scaling Renewables — The Grid Problem.pdf']
+      }
+    }
+  };
+
+  var selectedEvent = 'fin2-tue';
+
+  function setCalState(state) {
+    calState = state;
+    var root = document.getElementById('oc-root');
+    root.className = root.className.replace(/oc-state-\w+/, '');
+    root.classList.add('oc-state-' + state);
+    document.getElementById('btn-before').classList.toggle('active', state === 'before');
+    document.getElementById('btn-after').classList.toggle('active', state === 'after');
+    renderDetail(selectedEvent);
+  }
+
+  function selectEvent(id) {
+    // deselect all
+    document.querySelectorAll('.oc-event').forEach(e => e.classList.remove('selected'));
+    // select clicked
+    event.currentTarget.classList.add('selected');
+    selectedEvent = id;
+    renderDetail(id);
+  }
+
+  function renderDetail(id) {
+    var d = eventData[id];
+    if (!d) return;
+    if (calState === 'before') {
+      document.getElementById('od-title-before').textContent = d.before.title;
+    } else {
+      document.getElementById('od-title-after').textContent = d.after.title;
+      var vb = document.getElementById('od-video-block');
+      if (d.after.video) {
+        vb.style.display = '';
+        vb.innerHTML = '── VIDEO LINKS ──────────────────<br>  ' + d.after.video + '<br>────────────────────────────────';
+      } else {
+        vb.style.display = 'none';
+      }
+      var ab = document.getElementById('od-attachments');
+      ab.innerHTML = d.after.files.map(function(f) {
+        return '<div class="od-attach"><span class="oa-icon">' + f.slice(0,2) + '</span>' + f.slice(2) + '</div>';
+      }).join('');
+    }
+  }
+
+  // Initialize calendar state
+  document.addEventListener('DOMContentLoaded', function() {
+    var root = document.getElementById('oc-root');
+    if (root) {
+      root.classList.add('oc-state-before');
+    }
+  });
+</script>
+</body>
+</html>
