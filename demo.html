@@ -529,12 +529,15 @@
             </div>
           </div>
           <div class="pipe-detail">
-            Hits the <strong>Canvas REST API</strong> at <code>hbs.instructure.com/api/v1/courses/{id}/assignments</code> for each configured course. Parses assignment HTML to extract <strong>assignment questions</strong>, <strong>HBSP case links</strong>, <strong>Canvas-native file links</strong> (xlsx, docx), and <strong>video references</strong> (YouTube, Panopto). Enriches entries with actual class times from the Canvas calendar events API.
+            The sandbox environment that runs the pipeline cannot reach <code>hbs.instructure.com</code> directly — outbound requests are blocked at the proxy layer. The workaround: <strong>browser-side JavaScript</strong> (<span class="pipe-code-inline">fetch_canvas_assignments.js</span>) runs inside the user’s active HBS browser session, calls the Canvas REST API at <code>hbs.instructure.com/api/v1/courses/{id}/assignments</code> using the user’s stored token, and returns structured JSON. That JSON is written to <span class="pipe-code-inline">canvas_assignments_cache.json</span> on disk. <strong>canvas_scraper.py</strong> detects the proxy block automatically and falls back to the cache — no manual intervention needed. The cache contains per-course assignment metadata, due dates, and the assignment questions extracted from Canvas.
+            <div style="margin: .75rem 0; padding: .6rem .9rem; background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.25); border-radius: 6px; font-size: .8rem; color: #fcd34d;">
+              ⚠️ <strong>Current limitation:</strong> This two-step fetch (browser → cache → Python) adds a manual trigger. An enterprise deployment with direct server-to-Canvas API access would eliminate it — Canvas already exposes a fully documented REST API at the institution level.
+            </div>
             <div class="pipe-outputs">
               <span class="pipe-output-tag">📋 CLASS_ENTRY dicts</span>
               <span class="pipe-output-tag">❓ Assignment questions</span>
               <span class="pipe-output-tag">🔗 File URLs (all types)</span>
-              <span class="pipe-output-tag">🕐 Class times</span>
+              <span class="pipe-output-tag">💾 canvas_assignments_cache.json</span>
             </div>
           </div>
         </div>
@@ -602,11 +605,19 @@
             </div>
           </div>
           <div class="pipe-detail">
-            Uses the <strong>Microsoft Graph API</strong> (direct Exchange access) to find HBS push events (e.g. "FIN2 C") by course abbreviation and date. PATCHes the event: renames subject to <code>{num} {COURSE} {Case Name}</code>, attaches the cheatsheet + every downloaded file for that class (PDFs, xlsx, docx — all types), and embeds video links as plain text in the event body. Falls back to MAPI COM for local Outlook access if Graph token is unavailable.
+            The technical design is complete: identify each HBS push event (e.g. "FIN2 C") by course code and date, then issue a <strong>Graph API PATCH</strong> to rename the subject to <code>{num} {COURSE} {Case Name}</code>, attach the cheatsheet and all downloaded files, and embed video links in the event body. The pipeline code is built. The API calls are tested.
+            <div style="margin: .75rem 0; padding: .65rem .9rem; background: rgba(165,28,48,.08); border: 1px solid rgba(165,28,48,.3); border-radius: 6px; font-size: .8rem; color: #ff8094; line-height: 1.6;">
+              🚫 <strong>Blocked — HBS IT has not granted Microsoft Graph API access to individual students.</strong> The <code>Calendars.ReadWrite</code> scope required to modify Outlook calendar events can only be authorized by an administrator with delegated authority over the tenant. Individual students cannot self-authorize. Without it, this step cannot run automatically.
+            </div>
+            <div style="margin: .75rem 0; padding: .75rem 1rem; background: rgba(52,211,153,.06); border: 1px solid rgba(52,211,153,.22); border-radius: 6px; font-size: .82rem; color: var(--text-muted); line-height: 1.65;">
+              <div style="font-weight: 700; color: #34d399; margin-bottom: .4rem; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase;">Enterprise Opportunity</div>
+              This is the gap between a student workaround and a school-wide solution. If HBS IT issued a service account with <code>Calendars.ReadWrite</code> Graph API authority, this pipeline could run automatically for <em>every enrolled student</em> — no individual setup required. Every class, every week: calendar events renamed with full case context, cheatsheets attached, video links embedded. HBS already pushes generic calendar events to students; the infrastructure is there. <strong>One IT decision turns a personal productivity tool into an institutional one</strong> — and fixes what is, frankly, a poorly integrated platform that forces students to manually reconstruct context that the school’s own systems already contain.
+            </div>
             <div class="pipe-outputs">
-              <span class="pipe-output-tag">📅 Event renamed</span>
-              <span class="pipe-output-tag">📎 All files attached</span>
-              <span class="pipe-output-tag">📹 Video links in body</span>
+              <span class="pipe-output-tag" style="opacity:.5;">📅 Event renamed (blocked)</span>
+              <span class="pipe-output-tag" style="opacity:.5;">📎 All files attached (blocked)</span>
+              <span class="pipe-output-tag" style="opacity:.5;">📹 Video links in body (blocked)</span>
+              <span class="pipe-output-tag" style="border-color:rgba(52,211,153,.4); color:#34d399;">🏛️ Enterprise-ready if IT approves</span>
             </div>
           </div>
         </div>
