@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar Transformation — HBS Case Prep Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0c0c18;
+  color: #d0d0e0;
+  font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
+  padding: 28px 32px 40px;
+  min-width: 1100px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 22px;
+}
+.page-header h1 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #555;
+}
+.page-header .week-label {
+  font-size: .8rem;
+  color: #3a3a5a;
+  margin-top: 4px;
+  letter-spacing: .05em;
+}
+
+/* ── Comparison layout ── */
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 26px;
+}
+
+.panel {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #1e1e38;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+}
+.panel-header.before-h { background: #171727; border-bottom: 1px solid #232340; }
+.panel-header.after-h  { background: #0e1f16; border-bottom: 1px solid #162e1f; }
+
+.badge {
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+.badge-before { background: #222235; color: #777; border: 1px solid #333355; }
+.badge-after  { background: #112518; color: #34d399; border: 1px solid #34d39940; }
+
+.panel-subtitle { font-size: .69rem; color: #484868; }
+
+/* ── Calendar ── */
+.cal-wrap { background: #0f0f20; }
+
+.cal-head {
+  display: grid;
+  grid-template-columns: 36px repeat(5, 1fr);
+  border-bottom: 1px solid #1a1a35;
+}
+.cal-head-empty { padding: 0; }
+.cal-day-hdr {
+  border-left: 1px solid #1a1a35;
+  text-align: center;
+  padding: 7px 2px;
+}
+.cal-day-hdr .dow {
+  font-size: .58rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: #555;
+}
+.cal-day-hdr .date {
+  font-size: .9rem;
+  font-weight: 700;
+  color: #888;
+  line-height: 1.2;
+}
+
+.cal-body {
+  display: grid;
+  grid-template-columns: 36px repeat(5, 1fr);
+  height: 480px;
+  position: relative;
+}
+
+.time-gutter { position: relative; }
+.time-tick {
+  position: absolute;
+  font-size: .52rem;
+  color: #3a3a5a;
+  right: 4px;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.day-col { position: relative; border-left: 1px solid #181830; }
+
+.h-line { position: absolute; left: 0; right: 0; border-top: 1px solid #181830; }
+.h-half { position: absolute; left: 0; right: 0; border-top: 1px dashed #131325; }
+
+.ev {
+  position: absolute;
+  left: 2px; right: 2px;
+  border-radius: 4px;
+  padding: 4px 5px;
+  overflow: hidden;
+  cursor: default;
+}
+.ev-title {
+  font-size: .62rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.ev-sub {
+  font-size: .54rem;
+  opacity: 0.62;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ev-loc {
+  font-size: .52rem;
+  opacity: 0.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Before — all same dull brown */
+.ev-before {
+  background: rgba(90, 48, 12, 0.82);
+  border-left: 2px solid rgba(140, 80, 20, 0.65);
+  color: #c8934a;
+}
+
+/* After — color-coded by course */
+.ev-fin2  { background: rgba(110, 48, 10, 0.88); border-left: 3px solid #d97706; color: #fcd34d; }
+.ev-tem   { background: rgba(6, 60, 46, 0.88);   border-left: 3px solid #10b981; color: #6ee7b7; }
+.ev-lca   { background: rgba(55, 18, 95, 0.85);  border-left: 3px solid #8b5cf6; color: #c4b5fd; }
+.ev-bgie  { background: rgba(18, 38, 105, 0.88); border-left: 3px solid #3b82f6; color: #93c5fd; }
+.ev-dsail { background: rgba(90, 15, 24, 0.88);  border-left: 3px solid #a5431e; color: #fca5a5; }
+
+/* ── Arrow divider ── */
+.arrow-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 26px;
+  gap: 14px;
+  color: #2a2a45;
+  font-size: .65rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.arrow-divider::before, .arrow-divider::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid #1a1a35;
+}
+.arrow-divider .arrow-icon { font-size: 1.2rem; color: #34d399; }
+
+/* ── Event Detail ── */
+.detail-label {
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #34d399;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.detail-label::before, .detail-label::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid #1a3a28;
+}
+
+.outlook-window {
+  background: #181828;
+  border: 1px solid #252545;
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 820px;
+  margin: 0 auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,.6);
+}
+
+.ol-titlebar {
+  background: #22223a;
+  padding: 6px 12px;
+  font-size: .64rem;
+  color: #777;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #2e2e50;
+}
+.ol-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.ol-dot-r { background: #a5431e; }
+.ol-dot-y { background: #8a6a00; margin-left: 4px; }
+.ol-dot-g { background: #1a5a2a; margin-left: 4px; }
+.ol-titlebar-text { color: #999; }
+
+.ol-toolbar {
+  background: #181828;
+  padding: 6px 12px;
+  border-bottom: 1px solid #222240;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.ol-btn {
+  font-size: .62rem;
+  color: #888;
+  background: #222240;
+  border: 1px solid #2e2e50;
+  border-radius: 3px;
+  padding: 3px 9px;
+  cursor: default;
+  font-family: 'Inter', sans-serif;
+}
+
+.ol-attachments {
+  padding: 8px 14px;
+  border-bottom: 1px solid #222240;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: #141426;
+}
+.ol-attach {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #1e1e38;
+  border: 1px solid #2a2a48;
+  border-radius: 4px;
+  padding: 4px 9px;
+  font-size: .63rem;
+  color: #99a0cc;
+}
+.ol-attach-size { font-size: .56rem; color: #4a4a6a; margin-left: 2px; }
+
+.ol-view-link {
+  padding: 6px 14px;
+  border-bottom: 1px solid #222240;
+  font-size: .65rem;
+  color: #555;
+}
+.ol-view-link a { color: #60a5fa; text-decoration: none; }
+.ol-view-link a:hover { text-decoration: underline; }
+
+.ol-note {
+  padding: 7px 14px;
+  font-size: .61rem;
+  color: #9a5020;
+  border-bottom: 1px solid #222240;
+  font-style: italic;
+  background: rgba(120, 60, 20, 0.08);
+}
+
+.ol-body {
+  padding: 16px 18px;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: .68rem;
+  line-height: 1.7;
+  color: #bbb;
+}
+
+.ob-course {
+  font-size: .82rem;
+  font-weight: 700;
+  color: #93c5fd;
+  margin-bottom: 3px;
+  font-family: 'Inter', sans-serif;
+}
+.ob-meta  { font-size: .66rem; color: #666; margin-bottom: 3px; }
+.ob-cases { font-size: .66rem; color: #556; margin-bottom: 12px; }
+.ob-div   { color: #252548; margin: 10px 0; font-size: .62rem; letter-spacing: -.02em; }
+.ob-aqhdr {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: #dde;
+  margin-bottom: 10px;
+  font-family: 'Inter', sans-serif;
+}
+
+.ob-q { margin-bottom: 12px; }
+.ob-q-line { margin-bottom: 4px; }
+.ob-qlabel { color: #60a5fa; font-weight: 700; }
+.ob-qtext  { color: #ccd; }
+.ob-answer { color: #778; margin-left: 4px; margin-top: 2px; }
+.ob-answer-line { display: block; margin-bottom: 2px; }
+.ob-answer .tag { color: #4a5a8a; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>HBS Case Prep · Calendar Transformation</h1>
+  <div class="week-label">Week of April 13 – 17, 2026 &nbsp;·&nbsp; Section C</div>
+</div>
+
+<!-- ── Before / After Calendars ── -->
+<div class="comparison">
+
+  <!-- BEFORE -->
+  <div class="panel">
+    <div class="panel-header before-h">
+      <span class="badge badge-before">Before</span>
+      <span class="panel-subtitle">HBS generic calendar push — no case context</span>
+    </div>
+    <div class="cal-wrap">
+      <div class="cal-head">
+        <div class="cal-head-empty"></div>
+        <div class="cal-day-hdr"><div class="dow">Mon</div><div class="date">13</div></div>
+        <div class="cal-day-hdr"><div class="dow">Tue</div><div class="date">14</div></div>
+        <div class="cal-day-hdr"><div class="dow">Wed</div><div class="date">15</div></div>
+        <div class="cal-day-hdr"><div class="dow">Thu</div><div class="date">16</div></div>
+        <div class="cal-day-hdr"><div class="dow">Fri</div><div class="date">17</div></div>
+      </div>
+      <div class="cal-body">
+        <div class="time-gutter" id="before-time"></div>
+        <div class="day-col" id="bc-mon"></div>
+        <div class="day-col" id="bc-tue"></div>
+        <div class="day-col" id="bc-wed"></div>
+        <div class="day-col" id="bc-thu"></div>
+        <div class="day-col" id="bc-fri"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AFTER -->
+  <div class="panel">
+    <div class="panel-header after-h">
+      <span class="badge badge-after">After Pipeline</span>
+      <span class="panel-subtitle">Full case context — names, location, readings</span>
+    </div>
+    <div class="cal-wrap">
+      <div class="cal-head">
+        <div class="cal-head-empty"></div>
+        <div class="cal-day-hdr"><div class="dow">Mon</div><div class="date">13</div></div>
+        <div class="cal-day-hdr"><div class="dow">Tue</div><div class="date">14</div></div>
+        <div class="cal-day-hdr"><div class="dow">Wed</div><div class="date">15</div></div>
+        <div class="cal-day-hdr"><div class="dow">Thu</div><div class="date">16</div></div>
+        <div class="cal-day-hdr"><div class="dow">Fri</div><div class="date">17</div></div>
+      </div>
+      <div class="cal-body">
+        <div class="time-gutter" id="after-time"></div>
+        <div class="day-col" id="ac-mon"></div>
+        <div class="day-col" id="ac-tue"></div>
+        <div class="day-col" id="ac-wed"></div>
+        <div class="day-col" id="ac-thu"></div>
+        <div class="day-col" id="ac-fri"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .comparison -->
+
+<!-- ── Arrow divider ── -->
+<div class="arrow-divider">
+  <span class="arrow-icon">↓</span>
+  After-pipeline · sample event detail
+  <span class="arrow-icon">↓</span>
+</div>
+
+<!-- ── Event Detail ── -->
+<div class="detail-label">BGIE: 23 · Thu Apr 16 · 9:10 AM · opened in Outlook</div>
+
+<div class="outlook-window">
+
+  <div class="ol-titlebar">
+    <span class="ol-dot ol-dot-r"></span>
+    <span class="ol-dot ol-dot-y"></span>
+    <span class="ol-dot ol-dot-g"></span>
+    <span class="ol-titlebar-text">BGIE: 23 | AI and Capitalism &nbsp;·&nbsp; Meeting &nbsp;·&nbsp; Calendar — jdaughtrey@mba2027.hbs.edu</span>
+  </div>
+
+  <div class="ol-toolbar">
+    <button class="ol-btn">Event</button>
+    <button class="ol-btn">Series</button>
+    <button class="ol-btn">🗑 Delete</button>
+    <button class="ol-btn">Busy ▾</button>
+    <button class="ol-btn">🔔</button>
+    <button class="ol-btn">📎 My Templates</button>
+    <button class="ol-btn">⋯</button>
+  </div>
+
+  <div class="ol-attachments">
+    <div class="ol-attach">📄 AI and Capitalism — Case.pdf <span class="ol-attach-size">41 KB</span></div>
+    <div class="ol-attach">📄 AI and Capitalism — Course Note.pdf <span class="ol-attach-size">193 KB</span></div>
+    <div class="ol-attach">📄 AI and Capitalism — Exhibits.pdf <span class="ol-attach-size">2.4 MB</span></div>
+  </div>
+
+  <div class="ol-view-link">View event · <a href="#">https://inside.hbs.edu/myhbs</a></div>
+
+  <div class="ol-note">NOTE: The system may update or replace this calendar entry at any time; any edits you make to this entry will not be preserved. Please check myHBS for schedule and course details.</div>
+
+  <div class="ol-body">
+
+<div class="ob-div">────────────────────────────────────────────────────────</div>
+
+<div class="ob-course">BGIE CLASS 23 | AI and Capitalism</div>
+<div class="ob-meta">Thu Apr 16 | 9:10–10:30 AM | Aldrich 009</div>
+<div class="ob-cases">Case: HBS 9-723-051 (32pp) + AI Policy Note 9-723-018 (12pp)</div>
+
+<div class="ob-div">────────────────────────────────────────────────────────</div>
+
+<div class="ob-aqhdr">ASSIGNMENT QUESTIONS</div>
+
+<div class="ob-q">
+  <div class="ob-q-line"><span class="ob-qlabel">Q1: </span><span class="ob-qtext">How does the concentration of frontier AI capabilities among a handful of firms alter the competitive dynamics that have historically kept monopoly power in check? Is antitrust policy, as currently structured, a sufficient response?</span></div>
+  <div class="ob-answer">
+    <span class="ob-answer-line"><span class="tag">Economic:</span> AI creates unprecedented scale economies and data network effects — incumbents accumulate training data advantages that new entrants cannot replicate. Unlike Standard Oil (geographic) or AT&T (infrastructure), AI moats compound: more users → more data → better model → more users.</span>
+    <span class="ob-answer-line"><span class="tag">Political:</span> Regulatory lag is severe; current antitrust frameworks were designed for physical markets. Remedies like structural separation are harder to apply to models than to pipelines.</span>
+    <span class="ob-answer-line"><span class="tag">Strategic:</span> Key leverage point is compute access (H100 clusters), not just data. Export controls on chips inadvertently reinforce the oligopoly by blocking foreign challengers without addressing domestic concentration.</span>
+  </div>
+</div>
+
+<div class="ob-q">
+  <div class="ob-q-line"><span class="ob-qlabel">Q2: </span><span class="ob-qtext">Jensen Huang has argued generative AI renders traditional software labor increasingly obsolete. Who captures the productivity gains from this shift, and what mechanisms exist to distribute them more broadly?</span></div>
+  <div class="ob-answer">
+    <span class="ob-answer-line"><span class="tag">Labor:</span> Coding automation compresses median programmer wages while amplifying senior engineers — a "superstar" effect that increases within-skill variance. Real wage impact depends on whether new tasks emerge fast enough to offset displacement.</span>
+    <span class="ob-answer-line"><span class="tag">Capital vs. Labor:</span> Historical technology transitions (electrification, steam) ultimately raised labor share after a 20–40 year transition. AI may differ in speed and scope. Piketty's r&gt;g dynamic is relevant.</span>
+    <span class="ob-answer-line"><span class="tag">Distribution:</span> Profit-sharing mandates, robot taxes, expanded public goods financed by AI gains. Singapore's Skills Future model as counterexample to pure market allocation.</span>
+  </div>
+</div>
+
+<div class="ob-q">
+  <div class="ob-q-line"><span class="ob-qlabel">Q3: </span><span class="ob-qtext">How should a country with no domestic frontier AI capabilities approach national AI policy? Is AI dependency fundamentally different from dependency on oil or semiconductors?</span></div>
+  <div class="ob-answer">
+    <span class="ob-answer-line"><span class="tag">Dependency:</span> Oil is a depleting commodity; AI is an infinitely reproducible service consumable without owning the means of production. This lowers barriers to use but raises sovereignty concerns — data jurisdiction, model alignment with local values, kill-switch risk.</span>
+    <span class="ob-answer-line"><span class="tag">Strategic options:</span> (1) Consumer sovereignty — negotiate data and fine-tuning rights; (2) Open-source stack — build on Llama/Mistral derivatives to reduce US/China dependence; (3) Regulatory arbitrage — attract AI firms with permissive fine-tuning environments.</span>
+    <span class="ob-answer-line"><span class="tag">Geopolitics:</span> US/China bifurcation creates a Brussels Effect dynamic — the EU regulatory approach exports globally. Countries must choose a tech stack aligned with their political economy.</span>
+  </div>
+</div>
+
+  </div><!-- ol-body -->
+</div><!-- outlook-window -->
+
+
+<script>
+// ─── Time positioning ──────────────────────────────────────────
+const CAL_H   = 480;   // px total height
+const START_H = 8;     // 8:00 AM
+const END_H   = 16;    // 4:00 PM
+const PPM     = CAL_H / ((END_H - START_H) * 60); // px per minute = 1.0
+
+function yOf(h, m) {
+  return ((h - START_H) * 60 + m) * PPM;
+}
+
+// ─── Build time gutter ──────────────────────────────────────────
+function buildGutter(el) {
+  for (let h = START_H; h <= END_H; h++) {
+    const t = document.createElement('div');
+    t.className = 'time-tick';
+    t.style.top = yOf(h, 0) + 'px';
+    t.textContent = h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
+    el.appendChild(t);
+  }
+}
+
+// ─── Build hour/half-hour lines in a day column ─────────────────
+function buildDayBg(el) {
+  for (let h = START_H; h < END_H; h++) {
+    const line = document.createElement('div');
+    line.className = 'h-line';
+    line.style.top = yOf(h, 0) + 'px';
+    el.appendChild(line);
+    const half = document.createElement('div');
+    half.className = 'h-half';
+    half.style.top = yOf(h, 30) + 'px';
+    el.appendChild(half);
+  }
+  // Bottom border
+  const bot = document.createElement('div');
+  bot.className = 'h-line';
+  bot.style.top = yOf(END_H, 0) + 'px';
+  el.appendChild(bot);
+}
+
+// ─── Event data ─────────────────────────────────────────────────
+// Class slot times
+const C1 = { h: 9,  m: 10, dur: 80 }; // 9:10 – 10:30
+const C2 = { h: 10, m: 50, dur: 80 }; // 10:50 – 12:10
+const C3 = { h: 13, m: 30, dur: 80 }; // 1:30 – 2:50
+
+const BEFORE = {
+  mon: [
+    { ...C1, title: 'FIN2 C' },
+    { ...C2, title: 'TEM C'  },
+  ],
+  tue: [
+    { ...C1, title: 'TEM C'  },
+    { ...C2, title: 'FIN2 C' },
+    { ...C3, title: 'LCA C'  },
+  ],
+  wed: [
+    { ...C1, title: 'LCA C'  },
+    { ...C2, title: 'FIN2 C' },
+  ],
+  thu: [
+    { ...C1, title: 'BGIE C'  },
+    { ...C2, title: 'LCA C'   },
+    { ...C3, title: 'DSAIL C' },
+  ],
+  fri: [
+    { ...C1, title: 'BGIE C'  },
+    { ...C2, title: 'DSAIL C' },
+  ],
+};
+
+const AFTER = {
+  mon: [
+    { ...C1, cls: 'ev-fin2',  title: 'FIN2: 17 | Hertz: Driving into Bankruptcy',       sub: '9:10–10:30 AM · Aldrich 009' },
+    { ...C2, cls: 'ev-tem',   title: 'TEM: 20 | Beyond Meat: Pricing at IPO',            sub: '10:50 AM–12:10 PM · Aldrich 009' },
+  ],
+  tue: [
+    { ...C1, cls: 'ev-tem',   title: 'TEM: 21 | Oura 2025',                              sub: '9:10–10:30 AM · Aldrich 009' },
+    { ...C2, cls: 'ev-fin2',  title: 'FIN2: 19 | Equity Bids & Pricing Risks in M&A',   sub: '10:50 AM–12:10 PM · Aldrich 009' },
+    { ...C3, cls: 'ev-lca',   title: 'LCA: 21 | Amazon: Antitrust & the Everything Store', sub: '1:30–2:50 PM · Aldrich 009' },
+  ],
+  wed: [
+    { ...C1, cls: 'ev-lca',   title: 'LCA: 22 | Intuit: Lobbying to Save TurboTax',     sub: '9:10–10:30 AM · Aldrich 009' },
+    { ...C2, cls: 'ev-fin2',  title: 'FIN2: 20 | Turnaround at Mattel Day 1',            sub: '10:50 AM–12:10 PM · Aldrich 009' },
+  ],
+  thu: [
+    { ...C1, cls: 'ev-bgie',  title: 'BGIE: 23 | AI and Capitalism',                     sub: '9:10–10:30 AM · Aldrich 009' },
+    { ...C2, cls: 'ev-lca',   title: 'LCA: 23 | Making Target the Target',               sub: '10:50 AM–12:10 PM · Aldrich 009' },
+    { ...C3, cls: 'ev-dsail', title: 'DSAIL: 20 | AI Leadership & Pulling It All Together', sub: '1:30–2:50 PM · Aldrich 009' },
+  ],
+  fri: [
+    { ...C1, cls: 'ev-bgie',  title: 'BGIE: 24 | Ukraine',                               sub: '9:10–10:30 AM · Aldrich 009' },
+    { ...C2, cls: 'ev-dsail', title: 'DSAIL: 19 | Final Projects Showcase',              sub: '10:50 AM–12:10 PM · Aldrich 009' },
+  ],
+};
+
+// ─── Render events ───────────────────────────────────────────────
+function renderEvents(col, events, isBefore) {
+  events.forEach(ev => {
+    const div = document.createElement('div');
+    div.className = 'ev ' + (isBefore ? 'ev-before' : (ev.cls || 'ev-fin2'));
+    div.style.top    = yOf(ev.h, ev.m) + 'px';
+    div.style.height = (ev.dur * PPM) + 'px';
+    div.innerHTML =
+      `<div class="ev-title">${ev.title}</div>` +
+      (ev.sub ? `<div class="ev-sub">${ev.sub}</div>` : '');
+    col.appendChild(div);
+  });
+}
+
+// ─── Init ────────────────────────────────────────────────────────
+buildGutter(document.getElementById('before-time'));
+buildGutter(document.getElementById('after-time'));
+
+const days = ['mon','tue','wed','thu','fri'];
+days.forEach(d => {
+  const bc = document.getElementById('bc-' + d);
+  const ac = document.getElementById('ac-' + d);
+  buildDayBg(bc);
+  buildDayBg(ac);
+  renderEvents(bc, BEFORE[d], true);
+  renderEvents(ac, AFTER[d],  false);
+});
+</script>
+
+</body>
+</html>
