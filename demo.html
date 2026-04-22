@@ -392,14 +392,14 @@
 <section class="section-sm">
   <div class="container">
     <div class="tab-nav">
-      <button class="tab-btn active" onclick="showTab('cheatsheet', this)">📄 Sample Cheatsheet</button>
+      <button class="tab-btn active" onclick="showTab('calendar', this)">📅 Calendar Before / After</button>
+      <button class="tab-btn" onclick="showTab('cheatsheet', this)">📄 Sample Cheatsheet</button>
       <button class="tab-btn" onclick="showTab('pipeline', this)">⚙️ Pipeline Walkthrough</button>
       <button class="tab-btn" onclick="showTab('video', this)">📹 Video Walkthrough</button>
-      <button class="tab-btn" onclick="showTab('calendar', this)">📅 Calendar Before / After</button>
     </div>
 
     <!-- ── Tab 1: Cheatsheet ──────────────────────────────────────── -->
-    <div id="tab-cheatsheet" class="tab-panel active">
+    <div id="tab-cheatsheet" class="tab-panel">
       <div style="text-align:center; margin-bottom: 2rem;">
         <span class="badge badge-green" style="margin-right:.5rem;">24-page case</span>
         <span class="badge badge-blue">BGIE · Class 26</span>
@@ -651,174 +651,26 @@
     </div>
 
     <!-- ── Tab 4: Calendar Before/After ────────────────────────────── -->
-    <div id="tab-calendar" class="tab-panel">
-      <div class="oc-wrapper" id="oc-root">
-
-        <div style="margin-bottom:1.2rem;">
-          <h3 style="margin-bottom:.4rem;">Your Calendar — Before &amp; After</h3>
-          <p style="color:var(--text-muted); font-size:.88rem; max-width:620px;">
-            HBS pushes calendar events with generic codes like "FIN2 C" — no context, no files, no idea what case you're walking into.
-            One weekly run transforms every event: renamed with the full case title, cheatsheet attached, all exhibits attached, video links embedded in the body.
-          </p>
-        </div>
-
-        <div class="oc-toggle-row">
-          <button class="oc-toggle-btn active" id="btn-before" onclick="setCalState('before')">← BEFORE</button>
-          <button class="oc-toggle-btn" id="btn-after" onclick="setCalState('after')">AFTER →</button>
-          <span class="oc-toggle-hint">Toggle to see what the pipeline does to your calendar</span>
-        </div>
-
-        <div class="oc-layout">
-          <!-- Calendar grid -->
-          <div class="oc-cal">
-            <div class="oc-app-bar">
-              <span>📅</span>
-              <strong>Microsoft Outlook — Calendar</strong>
-              <span class="oc-week-nav">◀ &nbsp; Apr 14 – 20, 2026 &nbsp; ▶</span>
-            </div>
-            <!-- Day headers -->
-            <div class="oc-days-header">
-              <div class="oc-day-head" style="border-right:1px solid rgba(42,49,71,.5)"></div>
-              <div class="oc-day-head"><span class="day-num">14</span>MON</div>
-              <div class="oc-day-head today"><span class="day-num">15</span>TUE</div>
-              <div class="oc-day-head"><span class="day-num">16</span>WED</div>
-              <div class="oc-day-head"><span class="day-num">17</span>THU</div>
-            </div>
-            <!-- Grid body: 9am–3pm = 6h = 360px, but we'll use 330px (5.5h to 2:30) -->
-            <div class="oc-body">
-              <!-- Time column -->
-              <div class="oc-time-col">
-                <span class="oc-time-lbl" style="top:0">9 AM</span>
-                <span class="oc-time-lbl" style="top:60px">10 AM</span>
-                <span class="oc-time-lbl" style="top:120px">11 AM</span>
-                <span class="oc-time-lbl" style="top:180px">12 PM</span>
-                <span class="oc-time-lbl" style="top:240px">1 PM</span>
-                <span class="oc-time-lbl" style="top:300px">2 PM</span>
-              </div>
-              <!-- Mon: no classes -->
-              <div class="oc-day-col">
-                <div class="oc-hr-line" style="top:0"></div>
-                <div class="oc-hr-line" style="top:60px"></div>
-                <div class="oc-hr-line" style="top:120px"></div>
-                <div class="oc-hr-line" style="top:180px"></div>
-                <div class="oc-hr-line" style="top:240px"></div>
-                <div class="oc-hr-line" style="top:300px"></div>
-              </div>
-              <!-- Tue: FIN2 10:40-12:00, BGIE 1:00-2:20 -->
-              <div class="oc-day-col">
-                <div class="oc-hr-line" style="top:0"></div>
-                <div class="oc-hr-line" style="top:60px"></div>
-                <div class="oc-hr-line" style="top:120px"></div>
-                <div class="oc-hr-line" style="top:180px"></div>
-                <div class="oc-hr-line" style="top:240px"></div>
-                <div class="oc-hr-line" style="top:300px"></div>
-                <!-- FIN2: 10:40 = +100min from 9am = top:100px; 12:00 = 180min → height:80px -->
-                <div class="oc-event fin2 selected" style="top:100px; height:78px" onclick="selectEvent('fin2-tue')">
-                  <span class="ev-title-before">FIN2 C</span>
-                  <span class="ev-title-after">20 FIN2 Turnaround at Mattel Day 1</span>
-                  <span class="ev-time">10:40 – 12:00 PM</span>
-                </div>
-                <!-- BGIE: 1:00pm = +240min = top:240px; 2:20 = 320min → height:80px -->
-                <div class="oc-event bgie" style="top:240px; height:78px" onclick="selectEvent('bgie-tue')">
-                  <span class="ev-title-before">BGIE C</span>
-                  <span class="ev-title-after">23 BGIE Kuwait Finance House Crisis</span>
-                  <span class="ev-time">1:00 – 2:20 PM</span>
-                </div>
-              </div>
-              <!-- Wed: FIN2 10:40-12:00, DSAIL 6pm (note separately) -->
-              <div class="oc-day-col">
-                <div class="oc-hr-line" style="top:0"></div>
-                <div class="oc-hr-line" style="top:60px"></div>
-                <div class="oc-hr-line" style="top:120px"></div>
-                <div class="oc-hr-line" style="top:180px"></div>
-                <div class="oc-hr-line" style="top:240px"></div>
-                <div class="oc-hr-line" style="top:300px"></div>
-                <div class="oc-event fin2" style="top:100px; height:78px" onclick="selectEvent('fin2-wed')">
-                  <span class="ev-title-before">FIN2 C</span>
-                  <span class="ev-title-after">21 FIN2 Turnaround at Mattel Day 2</span>
-                  <span class="ev-time">10:40 – 12:00 PM</span>
-                </div>
-                <div class="oc-event dsail" style="top:240px; height:52px; font-size:.6rem" onclick="selectEvent('dsail-wed')">
-                  <span class="ev-title-before">DSAIL C</span>
-                  <span class="ev-title-after">20 DSAIL AI in Healthcare</span>
-                  <span class="ev-time">+eve: 6–7:20 PM</span>
-                </div>
-              </div>
-              <!-- Thu: BGIE 10:40-12:00, TEM 1:00-2:20 -->
-              <div class="oc-day-col">
-                <div class="oc-hr-line" style="top:0"></div>
-                <div class="oc-hr-line" style="top:60px"></div>
-                <div class="oc-hr-line" style="top:120px"></div>
-                <div class="oc-hr-line" style="top:180px"></div>
-                <div class="oc-hr-line" style="top:240px"></div>
-                <div class="oc-hr-line" style="top:300px"></div>
-                <div class="oc-event bgie" style="top:100px; height:78px" onclick="selectEvent('bgie-thu')">
-                  <span class="ev-title-before">BGIE C</span>
-                  <span class="ev-title-after">24 BGIE Poland Energy Transition</span>
-                  <span class="ev-time">10:40 – 12:00 PM</span>
-                </div>
-                <div class="oc-event tem" style="top:240px; height:78px" onclick="selectEvent('tem-thu')">
-                  <span class="ev-title-before">TEM C</span>
-                  <span class="ev-title-after">18 TEM Scaling Renewable Energy</span>
-                  <span class="ev-time">1:00 – 2:20 PM</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Detail panel -->
-          <div class="oc-detail">
-            <div class="oc-detail-bar">📋 Event Detail — click any event</div>
-            <div class="oc-detail-body" id="detail-body">
-              <!-- Before state content -->
-              <div class="detail-before">
-                <div class="od-title-before" id="od-title-before">FIN2 C</div>
-                <div class="od-row"><span class="od-icon">🕐</span><span class="od-text">Tue, Apr 15 · 10:40 AM – 12:00 PM</span></div>
-                <div class="od-row"><span class="od-icon">📍</span><span class="od-text">Aldrich 109</span></div>
-                <div class="od-row"><span class="od-icon">👤</span><span class="od-text">Organized by HBS Registrar</span></div>
-                <div class="od-empty-body">No body text. No description. Nothing.</div>
-                <div class="od-no-attach">📎 No attachments</div>
-              </div>
-              <!-- After state content -->
-              <div class="detail-after">
-                <div class="od-title-after" id="od-title-after">20 FIN2 Turnaround at Mattel Day 1</div>
-                <div class="od-row"><span class="od-icon">🕐</span><span class="od-text">Tue, Apr 15 · 10:40 AM – 12:00 PM</span></div>
-                <div class="od-row"><span class="od-icon">📍</span><span class="od-text">Aldrich 109</span></div>
-                <div class="od-row"><span class="od-icon">👤</span><span class="od-text">Organized by HBS Registrar</span></div>
-                <div class="od-video-block" id="od-video-block">── VIDEO LINKS ──────────────────<br>
-  Class 20 Prep: https://panopto.hbs.edu/Panopto/Pages/Viewer.aspx?id=fin2-c20<br>
-────────────────────────────────</div>
-                <div class="od-attachments" id="od-attachments">
-                  <div class="od-attach"><span class="oa-icon">📄</span>20 FIN2 Turnaround at Mattel Case Analysis Cheatsheet.docx</div>
-                  <div class="od-attach"><span class="oa-icon">📕</span>Turnaround at Mattel (HBS 9-216-054).pdf</div>
-                  <div class="od-attach"><span class="oa-icon">📊</span>Mattel Financial Model Exhibit A.xlsx</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Key stats row -->
-        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:.8rem; margin-top:1.5rem;">
-          <div style="padding:1rem 1.2rem; background:rgba(52,211,153,.06); border:1px solid rgba(52,211,153,.18); border-radius:10px; text-align:center;">
-            <div style="font-size:1.8rem; font-weight:900; color:var(--accent-green); letter-spacing:-.03em; line-height:1;">6</div>
-            <div style="font-size:.72rem; color:var(--text-muted); margin-top:.3rem; text-transform:uppercase; letter-spacing:.06em;">Events renamed</div>
-          </div>
-          <div style="padding:1rem 1.2rem; background:rgba(79,142,247,.06); border:1px solid rgba(79,142,247,.18); border-radius:10px; text-align:center;">
-            <div style="font-size:1.8rem; font-weight:900; color:var(--accent-blue); letter-spacing:-.03em; line-height:1;">14</div>
-            <div style="font-size:.72rem; color:var(--text-muted); margin-top:.3rem; text-transform:uppercase; letter-spacing:.06em;">Files attached</div>
-          </div>
-          <div style="padding:1rem 1.2rem; background:rgba(167,139,250,.06); border:1px solid rgba(167,139,250,.18); border-radius:10px; text-align:center;">
-            <div style="font-size:1.8rem; font-weight:900; color:var(--accent-purple); letter-spacing:-.03em; line-height:1;">4</div>
-            <div style="font-size:.72rem; color:var(--text-muted); margin-top:.3rem; text-transform:uppercase; letter-spacing:.06em;">Video links embedded</div>
-          </div>
-          <div style="padding:1rem 1.2rem; background:rgba(251,191,36,.06); border:1px solid rgba(251,191,36,.18); border-radius:10px; text-align:center;">
-            <div style="font-size:1.8rem; font-weight:900; color:var(--accent-yellow); letter-spacing:-.03em; line-height:1;">~47s</div>
-            <div style="font-size:.72rem; color:var(--text-muted); margin-top:.3rem; text-transform:uppercase; letter-spacing:.06em;">Total sync time</div>
-          </div>
-        </div>
-
+    <div id="tab-calendar" class="tab-panel active">
+      <div style="margin-bottom:1.4rem; max-width:900px;">
+        <h3 style="margin-bottom:.4rem; font-size:1.1rem;">Your Calendar — Before &amp; After</h3>
+        <p style="color:var(--text-muted); font-size:.88rem; line-height:1.65;">
+          HBS pushes calendar events with generic codes like “FIN2 C” — no context, no files, no idea what case you’re walking into.
+          One weekly run transforms every event: renamed with the full case title, cheatsheet attached, all exhibits attached, discussion questions embedded in the event body.
+        </p>
       </div>
+      <div style="position:relative; border-radius:13px; overflow:hidden; border:1px solid var(--border); box-shadow:0 20px 60px rgba(0,0,0,.6);">
+        <div style="background:var(--bg-3); padding:.55rem 1rem; display:flex; align-items:center; gap:.6rem; border-bottom:1px solid var(--border);">
+          <div style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></div>
+          <div style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></div>
+          <div style="width:11px;height:11px;border-radius:50%;background:#28c840;"></div>
+          <span style="font-size:.73rem; color:var(--text-dim); margin-left:.3rem; font-family:var(--mono);">Calendar — Week of Apr 13–17, 2026 · Section C</span>
+          <span style="margin-left:auto; font-size:.68rem; color:var(--crimson-light); font-weight:700; letter-spacing:.06em; text-transform:uppercase;">BEFORE → AFTER</span>
+        </div>
+        <iframe src="calendar-before-after.html"
+                style="width:100%; height:1900px; display:block; border:none; background:#0c0c18;"
+                scrolling="auto"
+                title="Calendar before and after the pipeline runs"></iframe>      </div>
     </div>
 
   </div>
@@ -835,24 +687,6 @@
         One command Sunday night. By Monday your calendar is renamed, every file is attached,
         and each event body has the case context and video links already in it.
       </p>
-    </div>
-
-    <!-- Before/After Calendar Visualization -->
-    <div style="max-width:960px; margin:0 auto 3.5rem; position:relative;">
-      <div style="position:absolute; inset:-1px; border-radius:14px; background:linear-gradient(135deg,rgba(165,28,48,.4),rgba(79,142,247,.2)); z-index:0; pointer-events:none;"></div>
-      <div style="position:relative; z-index:1; border-radius:13px; overflow:hidden; border:1px solid var(--border); box-shadow:0 20px 60px rgba(0,0,0,.6);">
-        <div style="background:var(--bg-3); padding:.55rem 1rem; display:flex; align-items:center; gap:.6rem; border-bottom:1px solid var(--border);">
-          <div style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></div>
-          <div style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></div>
-          <div style="width:11px;height:11px;border-radius:50%;background:#28c840;"></div>
-          <span style="font-size:.73rem; color:var(--text-dim); margin-left:.3rem; font-family:var(--mono);">Calendar — Week of Apr 13–17, 2026 · Section C</span>
-          <span style="margin-left:auto; font-size:.68rem; color:var(--crimson-light); font-weight:700; letter-spacing:.06em; text-transform:uppercase;">BEFORE → AFTER</span>
-        </div>
-        <iframe src="calendar-before-after.html"
-                style="width:100%; height:1100px; display:block; border:none; background:#0c0c18;"
-                scrolling="no"
-                title="Calendar before and after the pipeline runs"></iframe>
-      </div>
     </div>
 
     <!-- Two-column comparison -->
